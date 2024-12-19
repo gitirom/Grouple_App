@@ -10,7 +10,7 @@ type Props = {}
     return (
         <div className="w-full flex justify-between sticky top-0 items-center py-5 z-50">
             <p className="font-bold
-            text-2x1">Grouple.</p>
+            text-2x1">Rom-Grouple.</p>
             <Menu orientation="desktop" />
             <div className="flex gap-2 ">
                 <Link href='/sign-in'>
