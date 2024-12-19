@@ -16,6 +16,14 @@ type FormGeneratorProps = {
     lines?: number
 }
 
+/*
+he FormGenerator component is designed to dynamically render different types of 
+form elements (such as input, select, and textarea) based on the inputType prop.
+It also allows you to customize each input's behavior and appearance by passing
+specific props like label, placeholder, options, type (for input), and lines
+(for textarea).
+*/
+
 export const FormGenerator = ({
     inputType,
     options,
