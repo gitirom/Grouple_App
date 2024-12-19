@@ -2,6 +2,7 @@ import { onSignUpUser } from "@/actions/auth"
 import { SignInSchema } from "@/components/forms/sign-in/schema"
 import { SignUpSchema } from "@/components/forms/sign-up/schema"
 import { useSignIn, useSignUp } from "@clerk/nextjs"
+import { OAuthStrategy } from "@clerk/types"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
@@ -193,3 +194,48 @@ export const useAuthSignUp = () => {
     }
 }
 
+// A custom hook for handling Google OAuth authentication
+export const useGoogleAuth = () => {
+    // Extracting `signIn` function and its loading state from Clerk's `useSignIn` hook
+    const { signIn, isLoaded: LoadedSignIn } = useSignIn();
+
+    // Extracting `signUp` function and its loading state from Clerk's `useSignUp` hook
+    const { signUp, isLoaded: LoadedSignUp } = useSignUp();
+
+    // Function to initiate sign-in using an OAuth strategy
+    const signInWith = (strategy: OAuthStrategy) => {
+        // Ensure the `signIn` function is fully loaded before proceeding
+        if (!LoadedSignIn) return;
+        try {
+            // Authenticate the user with a redirect using the specified OAuth strategy
+            return signIn.authenticateWithRedirect({
+                strategy, // OAuth strategy to use (e.g., Google)
+                redirectUrl: "/callback", // Redirect URL after initiating authentication
+                redirectUrlComplete: "/callback/sign-in", // Final redirect URL after sign-in completes
+            });
+        } catch (error) {
+            // Log any errors encountered during the authentication process
+            console.error(error);
+        }
+    };
+
+    // Function to initiate sign-up using an OAuth strategy
+    const signUpWith = (strategy: OAuthStrategy) => {
+        // Ensure the `signUp` function is fully loaded before proceeding
+        if (!LoadedSignUp) return;
+        try {
+            // Authenticate the user with a redirect using the specified OAuth strategy
+            return signUp.authenticateWithRedirect({
+                strategy, // OAuth strategy to use (e.g., Google)
+                redirectUrl: "/callback", // Redirect URL after initiating authentication
+                redirectUrlComplete: "/callback/complete", // Final redirect URL after sign-up completes
+            });
+        } catch (error) {
+            // Log any errors encountered during the authentication process
+            console.error(error);
+        }
+    };
+
+    // Return the `signInWith` and `signUpWith` functions to be used in components
+    return { signUpWith, signInWith };
+};
