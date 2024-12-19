@@ -11,7 +11,8 @@ orientation: "mobile" | "desktop"
 }
 
     const Menu = ({ orientation }: MenuProps) => {
-    const { section, onSetSection } = useNavigation()
+    const { section, onSetSection } = useNavigation()    //for getting navigat to the section by section attr in the saate section
+    
     switch (orientation) {
         case "desktop":
             return (
@@ -22,6 +23,7 @@ orientation: "mobile" | "desktop"
                             href={menuItem.path}
                             {...(menuItem.section && {
                             onClick: () => onSetSection(menuItem.path),    //change the icon based on the path 
+                            
                             })}
                             className={cn(
                             "rounded-xl flex gap-2 py-2 px-4 items-center",
