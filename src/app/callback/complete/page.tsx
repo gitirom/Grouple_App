@@ -16,6 +16,8 @@ const CompleteOAuthAfterCallback = async () => {
         redirect(`/group/create`)
     }
 
+    console.log(user.id);
+
     if (complete.status !== 200) {
         redirect("/sign-in")
     }

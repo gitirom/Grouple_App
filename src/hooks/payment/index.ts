@@ -1,3 +1,6 @@
+"use client"
+
+import { onCreateNewGroup } from "@/actions/groups";
 import { onGetStripeClientSecret, onTransferCommission } from "@/actions/payments";
 import { CreateGroupSchema } from "@/components/forms/create-groupe/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +24,7 @@ export const usePayments = (
     affiliate: boolean, // Boolean indicating if the user is an affiliate
     stripeId?: string, // Optional Stripe ID associated with the user
 ) => {
-    const [IsCategory, setIsCategory] = useState<string | undefined>(undefined);
+    const [isCategory, setIsCategory] = useState<string | undefined>(undefined);
 
     const router = useRouter();
 
@@ -108,5 +111,16 @@ export const usePayments = (
             }
             },
         })
+
+        const onCreateGroup = handleSubmit(async (values) => createGroup(values))
+
+        return {
+            onCreateGroup,
+            isPending,
+            register,
+            errors,
+            isCategory,
+            creatingIntent,
+        }
 
 }

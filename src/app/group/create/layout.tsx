@@ -1,3 +1,4 @@
+import GlassCard from "@/app/(landing)/_componnents/glass-card"
 import BackdropGradient from "@/components/global/backdrop-gradient"
 import GradientText from "@/components/global/gradient-text"
 import { GROUPLE_CONSTANTS } from "@/constants"
@@ -29,6 +30,16 @@ const GroupeLayout = ({children}: Props) => {
                         </div>
                         ))}
                     </div>
+                </BackdropGradient>
+            </div>
+            <div className="">
+                <BackdropGradient 
+                    className="w-6/12 h-3/6 opacity-40"
+                    container="lg:items-center"
+                >
+                    <GlassCard className="xs:w-full lg:w-10/12 xl:w-8/12 mt-16 py-7 ">
+                        {children}
+                    </GlassCard>
                 </BackdropGradient>
             </div>
         </div>

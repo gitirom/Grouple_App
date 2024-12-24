@@ -1,6 +1,7 @@
 import SignInForm from "@/components/forms/sign-in"
 import { GoogleAuthButton } from "@/components/global/google-oauth-button"
 import { Separator } from "@/components/ui/separator"
+import Link from "next/link"
 //WIP: callback
 
 const SignInPage = () => {
@@ -19,6 +20,7 @@ const SignInPage = () => {
             <Separator orientation="horizontal" className="bg-themeGray" />
         </div>
         <GoogleAuthButton method="signin" />
+        <div className="mt-2" >Don't have an account ? <Link href='/sign-up' className="text-[#4285F4] underline " >Sign-up</Link></div>
         </>
     )
 }
