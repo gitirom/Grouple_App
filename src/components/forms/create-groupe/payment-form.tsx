@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { usePayments } from "@/hooks/payment"
 import { ErrorMessage } from "@hookform/error-message"
 import { CardElement } from "@stripe/react-stripe-js"
+import dynamic from "next/dynamic"
 import Link from "next/link"
 
 type Props = {
@@ -13,6 +14,16 @@ type Props = {
     affiliate: boolean,
     stripeId?: string,
 }
+
+const GroupList = dynamic(  // we import it dynamically cause it want's iported manually
+    () => 
+        import("@/components/global/group-list-slider").then(
+            (component) => component.GroupListSlider,
+        ),
+    {
+        ssr: false,
+    },
+)
 
 const PaymentForm = ({ userId, affiliate, stripeId }: Props) => {
     const {
@@ -23,10 +34,18 @@ const PaymentForm = ({ userId, affiliate, stripeId }: Props) => {
         isCategory,
         creatingIntent,
     } = usePayments(userId, affiliate)
+
+    
     
     return (
         <Loader loading={creatingIntent} >
             <form className="pt-5" onSubmit={onCreateGroup}>
+                <GroupList
+                    selected={isCategory}
+                    register={register}
+                    label="Select Category"
+                    slidesOffsetBefore={28}
+                />
                 <div className="px-7 mb-2 ">
                     <ErrorMessage
                         errors={errors}
@@ -69,7 +88,7 @@ const PaymentForm = ({ userId, affiliate, stripeId }: Props) => {
                     Cancel anytime with 1-click. By clicking below, you accept
                     our terms. 
                     </p>
-                    <Link className="text-sm text-[#4285f4] underline  " href="/explore">
+                    <Link className="text-sm text-themeTextGray underline w-[25%]" href="/explore">
                         Skip for now
                     </Link>
                     <Button variant="outline" type="submit" className="bg-themeBlack border-themeGray rounded-xl ">
