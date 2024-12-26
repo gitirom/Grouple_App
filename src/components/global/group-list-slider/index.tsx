@@ -16,7 +16,7 @@ type Props = {
     route?: boolean //determine if links should be clickable
 } & SwiperProps
 
-export const GroupListSlider = ({overlay, label, register, selected, route, ...rest }: Props) => {  //passes any additional props to the Slider using the spread operator (...rest).
+export const GroupListSlider = ({overlay, label, register, selected, route, className, ...rest }: Props) => {  //passes any additional props to the Slider using the spread operator (...rest).
     return (
         <Slider
             slidesPerView={"auto"}
@@ -44,11 +44,14 @@ export const GroupListSlider = ({overlay, label, register, selected, route, ...r
                                 <Input
                                     id={`item-${item.id}`}
                                     type="radio"
-                                    className="hidden"
+                                    className='hidden'
                                     value={item.path}
                                     {...register("category")}
                                 />
-                                <GroupListItem {...item} selected={selected} />
+                                <GroupListItem
+                                    {...item} 
+                                    selected={selected}
+                                />
                             </span>
                         </Label>
                         )

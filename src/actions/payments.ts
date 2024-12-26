@@ -3,28 +3,26 @@ import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
     typescript: true,
-    apiVersion: "2024-12-18.acacia"
+    apiVersion: "2024-12-18.acacia",
 })
-
-// Creating a new instance of the Stripe class using the secret key from the environment variable.
-export const onGetStripeClientSecret = async () => {
-    try {
+    
+    export const onGetStripeClientSecret = async () => {
+        try {
         const paymentIntent = await stripe.paymentIntents.create({
             currency: "usd",
             amount: 9900,
             automatic_payment_methods: {
-                enabled: true
+                enabled: true,
             },
         })
-
+    
         if (paymentIntent) {
-            return { secret: paymentIntent.client_secret }  // The client secret is used on the frontend to confirm the payment.
+            return { secret: paymentIntent.client_secret }
         }
-
-    } catch (error) {
-        return { status: 400, message: "Failed to load form"}
+        } catch (error) {
+            return { status: 400, message: "Failed to load form" }
+        }
     }
-}
 
 //stripe instance for transferring comissions to destination
 export const onTransferCommission = async (destination: string) => {
