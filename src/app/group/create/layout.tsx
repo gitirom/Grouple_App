@@ -2,12 +2,14 @@ import GlassCard from "@/app/(landing)/_componnents/glass-card"
 import BackdropGradient from "@/components/global/backdrop-gradient"
 import GradientText from "@/components/global/gradient-text"
 import { GROUPLE_CONSTANTS } from "@/constants"
+import { useAuth } from '@clerk/nextjs'
 
 type Props = {
     children: React.ReactNode
 }
 
 const GroupeLayout = ({children}: Props) => {
+        
     return (
         <div className="container h-screen grid grid-cols-1 lg:grid-cols-2 content-center ">
             <div className="flex items-center ">
