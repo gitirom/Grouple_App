@@ -1,3 +1,4 @@
+"use server"
 import { CreateGroupSchema } from "@/components/forms/create-groupe/schema"
 import { client } from "@/lib/prisma"
 import { v4 as uuidv4 } from "uuid"
@@ -102,9 +103,10 @@ import { z } from "zod"
                 }
             }
             } catch (error) {
-            return {
-                status: 400,
-                message: "Oops! group creation failed, try again later",
-            }
+                console.error("Error creating group:", error);
+                return {
+                    status: 400,
+                    message: "Oops! group creation failed, try again later",
+                };
             }
         }

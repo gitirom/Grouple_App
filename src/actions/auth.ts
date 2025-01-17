@@ -2,7 +2,7 @@
 import { client } from "@/lib/prisma"
 import { currentUser } from "@clerk/nextjs/server"
 
-   //make sure that this is a server 
+
 
 export const onAuthenticatedUser = async () => {
     try {
@@ -129,4 +129,6 @@ export const onSignInUser = async (clerkId: string) => {
         };
         }
     };
+
+    
     

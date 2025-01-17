@@ -43,6 +43,7 @@ export const useAuthSignIn = () => {
                 toast("Success", {
                     description: "Welcome back!",  // Success message
                 })
+                console.log('Sign_In successful');
                 router.push("/callback/sign-in")  // Redirects to the callback page
             }
         } catch (error: any) {

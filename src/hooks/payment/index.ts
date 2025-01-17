@@ -88,6 +88,7 @@ export const usePayments = (
         
             //// Check if the payment was successful.
             if (paymentIntent?.status === "succeeded") {
+                console.log(paymentIntent.status);
                 //// If `affiliate` is defined, handle commission transfer for the affiliate. 20%
                 if (affiliate) {
                     await onTransferCommission(stripeId!)  //transfer directly from stripe to client 

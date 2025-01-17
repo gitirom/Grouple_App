@@ -15,7 +15,7 @@ type Props = {
     stripeId?: string,
 }
 
-const GroupList = dynamic(  // we import it dynamically cause it want's iported manually
+const GroupList = dynamic(  // we import it dynamically cause it want's imported manually
     () => 
         import("@/components/global/group-list-slider").then(
             (component) => component.GroupListSlider,
