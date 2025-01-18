@@ -264,11 +264,11 @@ import { onAuthenticatedUser } from "./auth"
                 where: {
                     groupId: groupid,
                     NOT: {
-                        userId: user.id,
+                        userId: user.id,  //Excludes the member whose userId matches the user.id.
                     }
                 },
                 include: {
-                    User: true,
+                    User: true, // Includes related User data for each member returned.
                 },
             })
 

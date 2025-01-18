@@ -1,10 +1,14 @@
 import { onAuthenticatedUser } from "@/actions/auth"
+import { onGetChannelInfo } from "@/actions/channels"
+import { onGetGroupInfo } from "@/actions/groups"
 import { currentUser } from "@clerk/nextjs/server"
 import { QueryClient } from "@tanstack/react-query"
 
-type Props = {}
+type Props = {
+    params: {channelid: string; groupid: string}
+}
 
-const GroupChannelPage = async (props: Props) => {
+const GroupChannelPage = async ({params}: Props) => {
     const client = new QueryClient()
     const user = await currentUser()
     const authUser = await onAuthenticatedUser()
