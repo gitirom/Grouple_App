@@ -1,4 +1,8 @@
+'use client'
+
+import { useGroupChatOnline } from "@/hooks/groups"
 import { useSideBar } from "@/hooks/navigation"
+import { cn } from "@/lib/utils"
 
 type Props = {
     groupid: string
@@ -53,7 +57,16 @@ const SideBar = ({ groupid, userid, mobile }: Props) => {
 
     useGroupChatOnline(userid)
 
-    return <div>SideBar</div>
+    return (
+        <div 
+            className={cn(
+                "h-screen flex-col gap-y-10 sm:px-5",
+                !mobile ? "hidden bg-black md:w-[300px] fixed md:flex " : "w-full"
+            )}
+        >
+            
+        </div>
+    )
 }
 
 export default SideBar
