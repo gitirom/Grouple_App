@@ -25,6 +25,8 @@ const GroupChannelPage = async ({params}: Props) => {
         queryFn: async () => onGetGroupInfo(params.groupid),
     })
 
+    
+
     return (
         <div>GroupChannelPage</div>
     )

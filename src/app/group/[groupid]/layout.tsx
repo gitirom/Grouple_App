@@ -1,5 +1,6 @@
 import { onAuthenticatedUser } from "@/actions/auth"
 import { onGetAllGroupMembers, onGetGroupChannels, onGetGroupInfo, onGetGroupSubscriptions, onGetUserGroups } from "@/actions/groups"
+import SideBar from "@/components/global/sidebar"
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query"
 import { redirect } from "next/navigation"
 
@@ -50,7 +51,7 @@ const GroupLayout = async ({children, params}: Props) => {
     return (
         <HydrationBoundary state={dehydrate(query)} >     {/*HydrationBoundary helps bridge the gap between server-rendered HTML and client-side React, ensuring a smooth transition and optimal data handling. */}
             <div className="flex h-screen md:pt-5 ">
-                
+                <SideBar groupid={params.groupid} userid={user.id} />
             </div>
         </HydrationBoundary>
     )
