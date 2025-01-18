@@ -1,5 +1,6 @@
 import { onAuthenticatedUser } from "@/actions/auth"
-import { QueryClient } from "@tanstack/react-query"
+import { onGetAllGroupMembers, onGetGroupChannels, onGetGroupInfo, onGetGroupSubscriptions, onGetUserGroups } from "@/actions/groups"
+import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query"
 import { redirect } from "next/navigation"
 
 type Props = {
@@ -18,17 +19,40 @@ const GroupLayout = async ({children, params}: Props) => {
     //fetch groupe Info
     await query.prefetchQuery({   //fetch and **Cache** data before it is needed by the component
         queryKey: ["group-info"], //store and retrieve cached data
-        // queryFn: async () => onGetGroupInfo(params.groupid),
+        queryFn: async () => onGetGroupInfo(params.groupid),
     })
 
 
     //fetch user groups
+    await query.prefetchQuery({
+        queryKey: ["user-groups"], 
+        queryFn: async () => onGetUserGroups(user.id as string),
+    })
+
     //fetch channels
+    await query.prefetchQuery({
+        queryKey: ["group-channels"], 
+        queryFn: async () => onGetGroupChannels(params.groupid),
+    })
+
     //fetch groupe subscriptions
+    await query.prefetchQuery({
+        queryKey: ["group-subscriptions"], 
+        queryFn: async () => onGetGroupSubscriptions(params.groupid),
+        })
+
     //fetch member_chats
+    await query.prefetchQuery({
+        queryKey: ["member-chats"],
+        queryFn: async () => onGetAllGroupMembers(params.groupid),
+    })
 
     return (
-        <div>GroupLayout</div>
+        <HydrationBoundary state={dehydrate(query)} >     {/*HydrationBoundary helps bridge the gap between server-rendered HTML and client-side React, ensuring a smooth transition and optimal data handling. */}
+            <div className="flex h-screen md:pt-5 ">
+                
+            </div>
+        </HydrationBoundary>
     )
 }
 
