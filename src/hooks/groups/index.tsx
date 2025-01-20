@@ -3,7 +3,8 @@
 import { supabaseClient } from "@/lib/utils"
 import { onOnline } from "@/redux/slices/online-member-slice"
 import { AppDispatch } from "@/redux/store"
-import { useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
+import { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 
 // this custom hook connects to a Supabase channel for real-time presence tracking, listens for updates on which users are online,
@@ -23,7 +24,7 @@ export const useGroupChatOnline = (userid: string) => {
                 for (const user in state) {
                     dispatch(
                         onOnline({
-                            members: [{ id: state[user][0].member.userid }],  // Updates the online status with the user's ID.
+                            members: [{ id: state[user][0].member.userid }], // Updates the online status with the user's ID.
                         }),
                     )
                 }
@@ -39,8 +40,66 @@ export const useGroupChatOnline = (userid: string) => {
             })
 
         return () => {
-             // Cleanup function to unsubscribe from the channel when the component unmounts
+            // Cleanup function to unsubscribe from the channel when the component unmounts
             channel.unsubscribe()
         }
     }, [])
+}
+
+export const useSearch = (search: "GROUPS" | "POSTS") => {
+    const [query, setQuery] = useState<string>("")
+    const [debounce, setDebounce] = useState<string>("")
+
+    const dispatch: AppDispatch = useDispatch()
+
+    //// Event handler for updating the search query state when the input value changes
+    const onSearchQuery = (e: React.ChangeEvent<HTMLInputElement>) =>
+        setQuery(e.target.value)
+
+    useEffect(() => {
+        const delayInputTimeoutId = setTimeout(() => {
+            setDebounce(query)
+        }, 1000)
+        return () => clearTimeout(delayInputTimeoutId)
+    }, [query, 1000])
+
+    const { refetch, data, isFetched, isFetching } = useQuery({
+        queryKey: ["search-data", debounce],
+        queryFn: async ({ queryKey }) => {
+            if (search === "GROUPS") {
+                const groups = await onSearchGroups(search, queryKey[1]) // Fetching groups data based on the debounced query
+                return groups
+            }
+        },
+        enabled: false,
+    })
+
+     // Dispatching an action to indicate search is in progress when fetching
+    if (isFetching)
+        dispatch(
+            onSearch({
+                isSearching: true,
+                data: [],
+            }),
+        )
+
+    if (isFetched)
+        dispatch(
+            onSearch({
+                isSearching: false,
+                status: data?.status as number,
+                data: data?.groups || [],
+                debounce,
+            }),
+        )
+
+    useEffect(() => {
+        if (debounce) refetch()
+        if (!debounce) dispatch(onClearSearch())
+        return () => {
+            debounce
+        }
+    }, [debounce])
+
+    return { query, onSearchQuery }
 }
