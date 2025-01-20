@@ -103,3 +103,102 @@ export const onCreateNewChannel = async (
         return { status: 500, message: 'Internal server error' };
     }
 }
+
+//channel update
+export const onUpdateChannelInfo = async (
+    channelid: string,
+    name?: string,
+    icon?: string,
+) => {
+    try {
+        if (name) {  //update the name 
+            const channel = await client.channel.update({
+                where: {
+                    id: channelid,
+                },
+                data:{
+                    name,
+                },
+            })
+            if (channel) {
+                return { 
+                    status: 200, 
+                    message: "Channel name successfully updated",
+                }
+            }
+            return {
+                status: 404,
+                message: "Channel not found! try again later",
+            }
+        }
+        //update the icon
+        if (icon) {
+            const channel = await client.channel.update({
+                where: {
+                    id: channelid,
+                },
+                data:{
+                    icon,
+                },
+            })
+            if (channel) {
+                return { 
+                    status: 200,
+                    message: "Channel icon successfully updated",
+                }
+            }
+            return {
+                status: 404,
+                message: "Channel not found! try again later",
+            }
+        } else {
+            const channel = await client.channel.update({
+                where: {
+                    id: channelid,
+                },
+                data: {
+                    name,
+                    icon,
+                }
+            })
+            if (channel) {
+                return {
+                    status: 200,
+                    message: "Channel successfully updated",
+                }
+            }
+            return {
+                status: 404,
+                message: "Channel not found! try again later",
+            }
+        }
+    } catch (error) {
+        console.error("Error channel not updated :", error);
+        return { status: 500, message: 'Internal server error' };
+    }
+}
+
+//cahnnel delete
+export const onDeleteChannel = async (channelid: string) => {
+    try {
+        const channel = await client.channel.delete({
+            where: {
+                id: channelid,
+            },
+        })
+        
+        if (channel) {
+            return {
+                status: 200,
+                message: "Channel successfully deleted",
+            }
+        }
+        return { 
+            status: 404,
+            message: "Channel not found! try again later",
+        }
+    } catch (error) {
+        console.error("Error channel not deleted :", error);
+        return { status: 500, message: 'Internal server error' };
+    }
+}

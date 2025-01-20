@@ -1,6 +1,7 @@
 "use client"
 import { usePathname } from "next/navigation"
 import { IChannels } from "."
+import { useChannelInfo } from "@/hooks/channels"
 
 type Props = {
     channels: IChannels[]
@@ -28,7 +29,7 @@ const SideBarMenu = ({
     userId,
 }: Props) => {
     const pathname = usePathname()
-    const currentPage = pathname.split("/").pop()
+    const currentPage = pathname.split("/").pop() //extracting the current page
 
     const {
         channel: current,
