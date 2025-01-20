@@ -52,10 +52,11 @@ export const useSearch = (search: "GROUPS" | "POSTS") => {
 
     const dispatch: AppDispatch = useDispatch()
 
-    //// Event handler for updating the search query state when the input value changes
+    // Event handler for updating the search query state when the input value changes
     const onSearchQuery = (e: React.ChangeEvent<HTMLInputElement>) =>
         setQuery(e.target.value)
 
+    // reducing the number of search queries sent by introducing a 1-second delay after the user stops typing.
     useEffect(() => {
         const delayInputTimeoutId = setTimeout(() => {
             setDebounce(query)
@@ -93,6 +94,7 @@ export const useSearch = (search: "GROUPS" | "POSTS") => {
             }),
         )
 
+        //refetch data when debounce changes or clear search if debounce is empty
     useEffect(() => {
         if (debounce) refetch()
         if (!debounce) dispatch(onClearSearch())
