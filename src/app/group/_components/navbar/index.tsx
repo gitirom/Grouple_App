@@ -1,6 +1,7 @@
 import GlassSheet from "@/components/global/glass-sheet"
 import Search from "@/components/global/search"
 import SideBar from "@/components/global/sidebar"
+import UserWidget from "@/components/global/user-widget"
 import { Button } from "@/components/ui/button"
 import { CheckBadge } from "@/icons"
 import { currentUser } from "@clerk/nextjs/server"
@@ -20,7 +21,7 @@ export const Navbar = async ({ groupid, userid }: NavbarProps) => {
                 <SideBar groupid={groupid} userid={userid} mobile />
             </GlassSheet>
             <Search
-                searchType="POSTS"
+                searchType="GROUPS"
                 className="rounded-full border-themeGray bg-black !opacity-100 px-3"
                 placeholder="Search..."
             />
@@ -33,11 +34,11 @@ export const Navbar = async ({ groupid, userid }: NavbarProps) => {
                     Create Group
                 </Button>
             </Link>
-            {/* <UserWidget
+            <UserWidget
                 userid={userid}
                 image={user?.imageUrl!}
                 groupid={groupid}
-            /> */}
+            />
         </div>
     )
 }

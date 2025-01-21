@@ -2,38 +2,20 @@
 import GlassSheet from "@/components/global/glass-sheet"
 import { Button } from "@/components/ui/button"
 import { Logout } from "@/icons"
-import { useAuth, useClerk } from '@clerk/nextjs'
 import { MenuIcon } from "lucide-react"
 import Link from "next/link"
 import Menu from "./menu"
 
 type Props = {}
     const LandingPageNavbar = (props: Props) => {
-        const { isLoaded, userId, sessionId, getToken } = useAuth()
-        const { signOut } = useClerk()
 
-        if (userId){
-            console.log(`user : ${userId} and session id : ${sessionId}`);
-        }
-        
     return (
         <div className="w-full flex justify-between sticky top-0 items-center py-5 z-50">
             <p className="font-bold
             text-2x1">Grouple.</p>
             <Menu orientation="desktop" />
             <div className="flex gap-2 ">
-                {/*just for testing now!! */}
-                {sessionId ? (
-                    <Button
-                        variant="outline"
-                        className="bg-themeBlack rounded-2xl flex gap-2 border-themeGray hover:bg-themeGray"
-                        onClick={() => signOut({ redirectUrl: '/sign-in' })} 
-                    >
-                        <Logout />
-                        Logout
-                    </Button>
-                ) : (
-                    <Link href='/sign-in'>
+                <Link href='/sign-in'>
                     <Button
                         variant="outline"
                         className="bg-themeBlack rounded-2xl flex gap-2 border-themeGray hover:bg-themeGray"
@@ -42,7 +24,6 @@ type Props = {}
                         Login
                     </Button>
                 </Link>
-                )}
                 {/*glas sheet built in just use it */}
                 <GlassSheet
                     triggerClass="lg:hidden"
