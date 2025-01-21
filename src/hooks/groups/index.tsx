@@ -1,7 +1,9 @@
 "use client"
 
+import { onSearchGroups } from "@/actions/groups"
 import { supabaseClient } from "@/lib/utils"
 import { onOnline } from "@/redux/slices/online-member-slice"
+import { onClearSearch, onSearch } from "@/redux/slices/search-slice"
 import { AppDispatch } from "@/redux/store"
 import { useQuery } from "@tanstack/react-query"
 import { useEffect, useState } from "react"

@@ -286,7 +286,7 @@ import { onAuthenticatedUser } from "./auth"
     }
 
 
-    
+
 export const onSearchGroups = async (
     mode: "GROUPS" | "POSTS",
     query: string,
@@ -298,7 +298,7 @@ export const onSearchGroups = async (
                 where: {
                     name:{
                         contains: query,
-                        mode: "insensitive",
+                        mode: "insensitive",  //This means that the database will treat uppercase and lowercase letters as equivalent when performing the search
                     },
                 },
                 take: 6,

@@ -104,7 +104,7 @@ export const onCreateNewChannel = async (
     }
 }
 
-//channel update
+//channel update Enhance V
 export const onUpdateChannelInfo = async (
     channelid: string,
     name?: string,
