@@ -1,18 +1,19 @@
 "use client"
 
 import { onGetGroupInfo, onSearchGroups } from "@/actions/groups"
+import { GroupSettingsSchema } from "@/components/forms/group-settings/schema"
 import { supabaseClient } from "@/lib/utils"
 import { onOnline } from "@/redux/slices/online-member-slice"
 import { onClearSearch, onSearch } from "@/redux/slices/search-slice"
 import { AppDispatch } from "@/redux/store"
-import { useQuery } from "@tanstack/react-query"
-import { useEffect, useState } from "react"
-import { useDispatch } from "react-redux"
-import { JSONContent } from "novel"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { GroupSettingsSchema } from "@/components/forms/group-settings/schema"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { JSONContent } from "novel"
+import { useEffect, useState } from "react"
+import { useForm } from "react-hook-form"
+import { useDispatch } from "react-redux"
+import { toast } from "sonner"
+import { z } from "zod"
 
 // this custom hook connects to a Supabase channel for real-time presence tracking, listens for updates on which users are online,
 // and dispatches actions to update the Redux store with the online status of users.
@@ -146,6 +147,55 @@ export const useGroupSettings = (groupid: string) => {
     } = useForm<z.infer<typeof GroupSettingsSchema>>({
         resolver: zodResolver(GroupSettingsSchema),
         mode: "onChange",
+    })
+
+    const [previewIcon, setPreviewIcon] = useState<string | undefined>(undefined)
+    const [previewThumbnail, setPreviewThumbnail] = useState<string | undefined>(
+        undefined,
+    )
+
+    useEffect(() => {
+        const previews = watch(({ thumbnail, icon}) => { //to listen to changes
+            if (icon[0]) {
+                setPreviewIcon(URL.createObjectURL(icon[0]));
+            }
+            if (thumbnail[0]) {
+                setPreviewThumbnail(URL.createObjectURL(thumbnail[0]));
+            }
+        })
+        return () => previews.unsubscribe();    //clean up this subscription to prevent memory leaks or unwanted updates.
+    }, [watch])
+
+    const onSetDescriptions = () => {
+        const JsonContent = JSON.stringify(onJsonDescription)
+        setValue("jsondescription", JsonContent)
+        setValue("description", onDescription)
+    }
+
+    useEffect(() => {
+        onSetDescriptions()
+        return () => {
+            onSetDescriptions()
+        }
+    }, [onJsonDescription, onDescription])
+
+    const { mutate: update, isPending} = useMutation({
+        mutationKey: ["group-settings"],
+        mutationFn: async (values: z.infer<typeof GroupSettingsSchema>) => {
+            if (values.thumbnail && values.thumbnail.length > 0) {
+                const uploaded = await upload.uploadFile(values.thumbnail[0])
+                const updated = await onUpDateGroupSettings(
+                    groupid,
+                    "IMAGE",
+                    uploaded.uuid,
+                    `/group/${groupid}/settings`,
+                )
+
+                if (updated.status !== 200) {
+                    return toast("Error",{ description: "Oops! looks like your form is empty"})
+                }
+            }
+        }
     })
 
 }
