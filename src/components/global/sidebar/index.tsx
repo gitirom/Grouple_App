@@ -52,9 +52,9 @@ export interface IGroups {
     status: number
     groups:
         | {
-              icon: string | null
-              id: string
-              name: string
+                icon: string | null
+                id: string
+                name: string
           }[]
         | undefined
 }
@@ -62,7 +62,6 @@ export interface IGroups {
 const SideBar = ({ groupid, userid, mobile }: Props) => {
     const { groupInfo, groups, mutate, variables, isPending, channels } =
         useSideBar(groupid)
-    console.log(groups.groups)
 
     useGroupChatOnline(userid)
 
@@ -79,14 +78,14 @@ const SideBar = ({ groupid, userid, mobile }: Props) => {
                 <DropDown
                     title="Groups"
                     trigger={
-                        <div className="w-full flex items-center justify-between text-themeTextGray md:border-[1px] border-themeGray p-3 rounded-xl">
+                        <div className="w-full flex items-center justify-between text-themeTextGray md:border-[1px] border-themeGray p-3 rounded-xl cursor-pointer ">
                             <div className="flex gap-x-3 items-center">
                                 <img
                                     src={`https://ucarecdn.com/${groupInfo.group?.icon as string}/`}
                                     alt="icon"
                                     className="w-10 rounded-lg"
                                 />
-                                <p className="text-sm">
+                                <p className="text-sm font-semibold ">
                                     {groupInfo.group?.name}
                                 </p>
                             </div>

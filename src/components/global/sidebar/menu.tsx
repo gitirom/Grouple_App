@@ -54,6 +54,7 @@ const SideBarMenu = ({
     } = useChannelInfo()
 
 
+
     if (pathname.includes("settings")) {
         //change sidebar UI based on settings
         return (

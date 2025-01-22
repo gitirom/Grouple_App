@@ -1,6 +1,6 @@
 "use client"
 
-import { onSearchGroups } from "@/actions/groups"
+import { onGetGroupInfo, onSearchGroups } from "@/actions/groups"
 import { supabaseClient } from "@/lib/utils"
 import { onOnline } from "@/redux/slices/online-member-slice"
 import { onClearSearch, onSearch } from "@/redux/slices/search-slice"
@@ -8,6 +8,11 @@ import { AppDispatch } from "@/redux/store"
 import { useQuery } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
+import { JSONContent } from "novel"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { GroupSettingsSchema } from "@/components/forms/group-settings/schema"
 
 // this custom hook connects to a Supabase channel for real-time presence tracking, listens for updates on which users are online,
 // and dispatches actions to update the Redux store with the online status of users.
@@ -22,7 +27,6 @@ export const useGroupChatOnline = (userid: string) => {
         channel
             .on("presence", { event: "sync" }, () => {
                 const state: any = channel.presenceState() // Retrieves the current state of users subscribed to the channel and user Info.
-                console.log(state)
                 for (const user in state) {
                     dispatch(
                         onOnline({
@@ -106,4 +110,42 @@ export const useSearch = (search: "GROUPS" | "POSTS") => {
     }, [debounce])
 
     return { query, onSearchQuery }
+}
+
+
+
+
+export const useGroupSettings = (groupid: string) => {
+
+    //let's get group info 
+    const {data} = useQuery({
+        queryKey: ["group-info"],
+        queryFn: async () => onGetGroupInfo(groupid)
+    })
+
+    //get group content here
+    const jsonContent = 
+        data?.group?.jsonDescription !== null
+        ? JSON.parse(data?.group?.jsonDescription as string)
+        : undefined
+
+        const [onJsonDescription, setJsonDescription] = useState<
+            JSONContent | undefined
+        >(jsonContent)
+
+        const [onDescription, setOnDescription] = useState<string | undefined >(data?.group?.description || undefined);
+
+    //form handling here for group settings form usin useForm
+    const {
+        register,
+        formState: {errors},
+        handleSubmit,
+        reset,
+        watch,
+        setValue,
+    } = useForm<z.infer<typeof GroupSettingsSchema>>({
+        resolver: zodResolver(GroupSettingsSchema),
+        mode: "onChange",
+    })
+
 }
