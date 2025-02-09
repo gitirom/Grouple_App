@@ -70,65 +70,64 @@ export const onSignUpUser = async (data: {
     }
 
     // Function to handle user sign-in based on their Clerk ID
-export const onSignInUser = async (clerkId: string) => {
-    try {
-      // Query the database for a user with the provided Clerk ID
-        const loggedInUser = await client.user.findUnique({
-            where: {
-            clerkId, // Clerk ID to identify the user
-            },
-            select: {
-            id: true, // Select the user ID
-            group: {  // Include the user's groups
-                select: {
-                id: true, // Select group IDs
-                channel: { // Include the group's channels
-                    select: {
-                    id: true, // Select channel IDs
-                    },
-                    take: 1, // Fetch only the first channel
-                    orderBy: {
-                    createdAt: "asc", // Order channels by creation date (ascending)
-                    },
-                },
-                },
-            },
-            },
-        });
+    export const onSignInUser = async (clerkId: string) => {
+        try {
+            console.log("Received Clerk ID:", clerkId); // Debug log
     
-        // Check if a user was found
-        if (loggedInUser) {
-            // If the user belongs to at least one group, return related group and channel information
-            if (loggedInUser.group.length > 0) {
-            return {
-                status: 207, // Custom status for partial content (e.g., group and channel info returned)
-                id: loggedInUser.id, // User ID
-                groupId: loggedInUser.group[0].id, // First group's ID
-                channelId: loggedInUser.group[0].channel[0].id, // First group's first channel's ID
-            };
+            const loggedInUser = await client.user.findUnique({
+                where: {
+                    clerkId,
+                },
+                select: {
+                    id: true,
+                    group: {
+                        select: {
+                            id: true,
+                            channel: {
+                                select: { id: true },
+                                take: 1,
+                                orderBy: { createdAt: "asc" },
+                            },
+                        },
+                    },
+                },
+            });
+    
+            console.log("Database Response:", loggedInUser); // Debug log
+    
+            if (loggedInUser) {
+                if (loggedInUser.group.length > 0) {
+                    return {
+                        status: 207,
+                        id: loggedInUser.id,
+                        groupId: loggedInUser.group[0].id,
+                        channelId: loggedInUser.group[0].channel[0]?.id, // Add optional chaining to prevent errors
+                    };
+                }
+    
+                return {
+                    status: 200,
+                    message: "User successfully logged in",
+                    id: loggedInUser.id,
+                };
             }
     
-            // If the user does not belong to any group, return a simple success message
+            console.log("User not found in the database");
+    
             return {
-            status: 200, // Success status
-            message: "User successfully logged in", // Success message
-            id: loggedInUser.id, // User ID
+                status: 400,
+                message: "User could not be logged in! Try again",
+            };
+        } catch (error) {
+            console.error("Database Query Error:", error); // Log the error for debugging
+    
+            return {
+                status: 400,
+                message: "Oops! something went wrong. Try again",
             };
         }
-    
-        // If no user was found, return an error message
-        return {
-            status: 400, // Error status
-            message: "User could not be logged in! Try again", // Error message
-        };
-        } catch (error) {
-        // Handle any unexpected errors during the database query
-        return {
-            status: 400, // Error status
-            message: "Oops! something went wrong. Try again", // Error message
-        };
-        }
     };
+    
 
     
     
