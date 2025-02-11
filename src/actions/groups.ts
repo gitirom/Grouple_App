@@ -4,6 +4,7 @@ import { client } from "@/lib/prisma"
 import { v4 as uuidv4 } from "uuid"
 import { z } from "zod"
 import { onAuthenticatedUser } from "./auth"
+import { revalidatePath } from "next/cache"
 
     export const onGetAffiliateInfo = async (id: string) => {
         try {
@@ -320,5 +321,91 @@ export const onSearchGroups = async (
     } catch (error) {
         console.error("Error Group Search :", error);
             return { status: 500, message: 'Internal server error' };
+    }
+}
+
+
+export const onUpdateGroupSettings = async (
+    groupId: string,
+    type: 
+        | "IMAGE"
+        | "ICON"
+        | "NAME"
+        | "DESCRIPTION"
+        | "JSONDESCRIPTION"
+        | "HTMLDESCRIPTION",
+    content: string,
+    path: string,
+) => {
+    try {
+        if (type === "IMAGE") {
+            await client.group.update({
+                where: {
+                    id: groupId,
+                },
+                data: {
+                    thumbnail: content,
+                },
+            })
+        }
+        if (type === "ICON") {
+            await client.group.update({
+                where: {
+                    id: groupId,
+                },
+                data: {
+                    icon: content,
+                },
+            })
+            console.log("uploaded image");
+            
+        }
+        if (type === "NAME") {
+            await client.group.update({
+                where: {
+                    id: groupId,
+                },
+                data: {
+                    name: content,
+                },
+            })
+        }
+        if (type === "DESCRIPTION") {
+            await client.group.update({
+                where: {
+                    id: groupId,
+                },
+                data: {
+                    description: content,
+                },
+            })
+            
+        }
+        if (type === "JSONDESCRIPTION") {
+            await client.group.update({
+                where: {
+                    id: groupId,
+                },
+                data: {
+                    jsonDescription: content,
+                },
+            })
+            
+        }
+        if (type === "HTMLDESCRIPTION") {
+            await client.group.update({
+                where: {
+                    id: groupId,
+                },
+                data: {
+                    htmlDescription: content,
+                },
+            })
+        }
+        revalidatePath(path)   //invalidate and refresh the cached data
+        return { status: 200, message: 'Group settings updated successfuly' }
+    } catch (error) {
+        console.error("Error Update Group Settings :", error);
+        return { status: 500, message: 'Internal server error' };
     }
 }

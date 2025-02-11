@@ -2,6 +2,7 @@
 
 import { onGetGroupInfo, onSearchGroups } from "@/actions/groups"
 import { GroupSettingsSchema } from "@/components/forms/group-settings/schema"
+import { upload } from "@/lib/uploadCare"
 import { supabaseClient } from "@/lib/utils"
 import { onOnline } from "@/redux/slices/online-member-slice"
 import { onClearSearch, onSearch } from "@/redux/slices/search-slice"
@@ -119,7 +120,7 @@ export const useSearch = (search: "GROUPS" | "POSTS") => {
 export const useGroupSettings = (groupid: string) => {
 
     //let's get group info 
-    const {data} = useQuery({
+    const {data} = useQuery({    //fetch and cache API responses GET
         queryKey: ["group-info"],
         queryFn: async () => onGetGroupInfo(groupid)
     })
@@ -136,7 +137,7 @@ export const useGroupSettings = (groupid: string) => {
 
         const [onDescription, setOnDescription] = useState<string | undefined >(data?.group?.description || undefined);
 
-    //form handling here for group settings form usin useForm
+    //form handling here for group settings form using useForm
     const {
         register,
         formState: {errors},
@@ -155,7 +156,7 @@ export const useGroupSettings = (groupid: string) => {
     )
 
     useEffect(() => {
-        const previews = watch(({ thumbnail, icon}) => { //to listen to changes
+        const previews = watch(({ thumbnail, icon}) => { // Re-renders when " thumbnail, icon" changes
             if (icon[0]) {
                 setPreviewIcon(URL.createObjectURL(icon[0]));
             }
@@ -179,7 +180,7 @@ export const useGroupSettings = (groupid: string) => {
         }
     }, [onJsonDescription, onDescription])
 
-    const { mutate: update, isPending} = useMutation({
+    const { mutate: update, isPending} = useMutation({  //Used for modifying data (POST, PUT, DELETE)
         mutationKey: ["group-settings"],
         mutationFn: async (values: z.infer<typeof GroupSettingsSchema>) => {
             if (values.thumbnail && values.thumbnail.length > 0) {
