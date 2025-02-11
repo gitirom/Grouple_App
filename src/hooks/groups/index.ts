@@ -1,6 +1,6 @@
 "use client"
 
-import { onGetGroupInfo, onSearchGroups } from "@/actions/groups"
+import { onGetGroupInfo, onSearchGroups, onUpdateGroupSettings } from "@/actions/groups"
 import { GroupSettingsSchema } from "@/components/forms/group-settings/schema"
 import { upload } from "@/lib/uploadCare"
 import { supabaseClient } from "@/lib/utils"
@@ -9,6 +9,7 @@ import { onClearSearch, onSearch } from "@/redux/slices/search-slice"
 import { AppDispatch } from "@/redux/store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQuery } from "@tanstack/react-query"
+import { useRouter } from "next/router"
 import { JSONContent } from "novel"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -185,7 +186,7 @@ export const useGroupSettings = (groupid: string) => {
         mutationFn: async (values: z.infer<typeof GroupSettingsSchema>) => {
             if (values.thumbnail && values.thumbnail.length > 0) {
                 const uploaded = await upload.uploadFile(values.thumbnail[0])
-                const updated = await onUpDateGroupSettings(
+                const updated = await onUpdateGroupSettings(
                     groupid,
                     "IMAGE",
                     uploaded.uuid,
@@ -196,7 +197,84 @@ export const useGroupSettings = (groupid: string) => {
                     return toast("Error",{ description: "Oops! looks like your form is empty"})
                 }
             }
-        }
+            if (values.icon && values.icon.length > 0) {
+                const uploaded = await upload.uploadFile(values.icon[0])
+                const updated = await onUpdateGroupSettings(
+                    groupid,
+                    "ICON",
+                    uploaded.uuid,
+                    `/group/${groupid}/settings`,
+                )
+
+                if (updated.status !== 200) {
+                    return toast("Error",{ description: "Oops! looks like your form is empty"})
+                }
+            }
+            if (values.name) {
+                const updated = await onUpdateGroupSettings(
+                    groupid,
+                    "NAME",
+                    values.name,
+                    `/group/${groupid}/settings`,
+                )
+
+                if (updated.status !== 200) {
+                    return toast("Error",{ description: "Oops! looks like your form is empty"})
+                }
+            }
+            if (values.description) {
+                const updated = await onUpdateGroupSettings(
+                    groupid,
+                    "DESCRIPTION",
+                    values.description,
+                    `/group/${groupid}/settings`,
+                )
+
+                if (updated.status !== 200) {
+                    return toast("Error",{ description: "Oops! looks like your form is empty"})
+                }
+            }
+            if (values.jsondescription) {
+                const updated = await onUpdateGroupSettings(
+                    groupid,
+                    "JSONDESCRIPTION",
+                    values.jsondescription,
+                    `/group/${groupid}/settings`,
+                )
+
+                if (updated.status !== 200) {
+                    return toast("Error",{ description: "Oops! looks like your form is empty"})
+                }
+            }
+            if (
+                !values.description &&
+                !values.name &&
+                !values.thumbnail &&
+                !values.icon &&
+                !values.jsondescription
+            ) {
+                return toast("Error",{ description: "Oops! looks like your form is empty"})
+            }
+            return toast("Success",{ description: "Group settings updated successfully"})
+        },
     })
+
+    const router = useRouter()
+    const onUpdate = handleSubmit(async (values) => update(values))
+    if (data?.status !== 200) return router.push(`/group/create`)
+
+    return {
+        data,
+        register,
+        errors,
+        onUpdate,
+        isPending,
+        previewIcon,
+        previewThumbnail,
+        onJsonDescription,
+        setJsonDescription,
+        setOnDescription,
+        onDescription,
+    }
 
 }
