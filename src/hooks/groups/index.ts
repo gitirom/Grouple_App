@@ -9,7 +9,7 @@ import { onClearSearch, onSearch } from "@/redux/slices/search-slice"
 import { AppDispatch } from "@/redux/store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { useRouter } from "next/router"
+import { useRouter } from "next/navigation"
 import { JSONContent } from "novel"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -118,163 +118,170 @@ export const useSearch = (search: "GROUPS" | "POSTS") => {
 
 
 
-export const useGroupSettings = (groupid: string) => {
-
-    //let's get group info 
-    const {data} = useQuery({    //fetch and cache API responses GET
+    export const useGroupSettings = (groupid: string) => {
+        const { data } = useQuery({
         queryKey: ["group-info"],
-        queryFn: async () => onGetGroupInfo(groupid)
-    })
-
-    //get group content here
-    const jsonContent = 
-        data?.group?.jsonDescription !== null
+        queryFn: () => onGetGroupInfo(groupid),
+        })
+    
+        const jsonContent = data?.group?.jsonDescription
         ? JSON.parse(data?.group?.jsonDescription as string)
         : undefined
-
+    
         const [onJsonDescription, setJsonDescription] = useState<
-            JSONContent | undefined
+        JSONContent | undefined
         >(jsonContent)
-
-        const [onDescription, setOnDescription] = useState<string | undefined >(data?.group?.description || undefined);
-
-    //form handling here for group settings form using useForm
-    const {
+    
+        const [onDescription, setOnDescription] = useState<string | undefined>(
+        data?.group?.description || undefined,
+        )
+    
+        const {
         register,
-        formState: {errors},
-        handleSubmit,
+        formState: { errors },
         reset,
+        handleSubmit,
         watch,
         setValue,
-    } = useForm<z.infer<typeof GroupSettingsSchema>>({
+        } = useForm<z.infer<typeof GroupSettingsSchema>>({
         resolver: zodResolver(GroupSettingsSchema),
         mode: "onChange",
-    })
-
-    const [previewIcon, setPreviewIcon] = useState<string | undefined>(undefined)
-    const [previewThumbnail, setPreviewThumbnail] = useState<string | undefined>(
+        })
+        const [previewIcon, setPreviewIcon] = useState<string | undefined>(undefined)
+        const [previewThumbnail, setPreviewThumbnail] = useState<string | undefined>(
         undefined,
-    )
-
-    useEffect(() => {
-        const previews = watch(({ thumbnail, icon}) => { // Re-renders when " thumbnail, icon" changes
+        )
+    
+        useEffect(() => {
+        const previews = watch(({ thumbnail, icon }) => {
+            if (!icon) return
             if (icon[0]) {
-                setPreviewIcon(URL.createObjectURL(icon[0]));
+            setPreviewIcon(URL.createObjectURL(icon[0]))
             }
             if (thumbnail[0]) {
-                setPreviewThumbnail(URL.createObjectURL(thumbnail[0]));
+            setPreviewThumbnail(URL.createObjectURL(thumbnail[0]))
             }
         })
-        return () => previews.unsubscribe();    //clean up this subscription to prevent memory leaks or unwanted updates.
-    }, [watch])
-
-    const onSetDescriptions = () => {
+        return () => previews.unsubscribe()
+        }, [watch])
+    
+        const onSetDescriptions = () => {
         const JsonContent = JSON.stringify(onJsonDescription)
         setValue("jsondescription", JsonContent)
         setValue("description", onDescription)
-    }
-
-    useEffect(() => {
+        }
+    
+        useEffect(() => {
         onSetDescriptions()
         return () => {
             onSetDescriptions()
         }
-    }, [onJsonDescription, onDescription])
-
-    const { mutate: update, isPending} = useMutation({  //Used for modifying data (POST, PUT, DELETE)
+        }, [onJsonDescription, onDescription])
+    
+        const { mutate: update, isPending } = useMutation({
         mutationKey: ["group-settings"],
         mutationFn: async (values: z.infer<typeof GroupSettingsSchema>) => {
             if (values.thumbnail && values.thumbnail.length > 0) {
                 const uploaded = await upload.uploadFile(values.thumbnail[0])
                 const updated = await onUpdateGroupSettings(
-                    groupid,
-                    "IMAGE",
-                    uploaded.uuid,
-                    `/group/${groupid}/settings`,
-                )
-
-                if (updated.status !== 200) {
-                    return toast("Error",{ description: "Oops! looks like your form is empty"})
-                }
+                groupid,
+                "IMAGE",
+                uploaded.uuid,
+                `/group/${groupid}/settings`,
+            )
+            if (updated.status !== 200) {
+                return toast("Error", {
+                description: "Oops! looks like your form is empty",
+                })
+            }
             }
             if (values.icon && values.icon.length > 0) {
+                console.log("icon")
                 const uploaded = await upload.uploadFile(values.icon[0])
                 const updated = await onUpdateGroupSettings(
-                    groupid,
-                    "ICON",
-                    uploaded.uuid,
-                    `/group/${groupid}/settings`,
-                )
-
-                if (updated.status !== 200) {
-                    return toast("Error",{ description: "Oops! looks like your form is empty"})
-                }
+                groupid,
+                "ICON",
+                uploaded.uuid,
+                `/group/${groupid}/settings`,
+            )
+            if (updated.status !== 200) {
+                return toast("Error", {
+                description: "Oops! looks like your form is empty",
+                })
+            }
             }
             if (values.name) {
-                const updated = await onUpdateGroupSettings(
-                    groupid,
-                    "NAME",
-                    values.name,
-                    `/group/${groupid}/settings`,
-                )
-
-                if (updated.status !== 200) {
-                    return toast("Error",{ description: "Oops! looks like your form is empty"})
-                }
+            const updated = await onUpdateGroupSettings(
+                groupid,
+                "NAME",
+                values.name,
+                `/group/${groupid}/settings`,
+            )
+            if (updated.status !== 200) {
+                return toast("Error", {
+                description: "Oops! looks like your form is empty",
+                })
             }
+            }
+            console.log("DESCRIPTION")
+    
             if (values.description) {
-                const updated = await onUpdateGroupSettings(
-                    groupid,
-                    "DESCRIPTION",
-                    values.description,
-                    `/group/${groupid}/settings`,
-                )
-
-                if (updated.status !== 200) {
-                    return toast("Error",{ description: "Oops! looks like your form is empty"})
-                }
+            const updated = await onUpdateGroupSettings(
+                groupid,
+                "DESCRIPTION",
+                values.description,
+                `/group/${groupid}/settings`,
+            )
+            if (updated.status !== 200) {
+                return toast("Error", {
+                description: "Oops! looks like your form is empty",
+                })
+            }
             }
             if (values.jsondescription) {
-                const updated = await onUpdateGroupSettings(
-                    groupid,
-                    "JSONDESCRIPTION",
-                    values.jsondescription,
-                    `/group/${groupid}/settings`,
-                )
-
-                if (updated.status !== 200) {
-                    return toast("Error",{ description: "Oops! looks like your form is empty"})
-                }
+            const updated = await onUpdateGroupSettings(
+                groupid,
+                "JSONDESCRIPTION",
+                values.jsondescription,
+                `/group/${groupid}/settings`,
+            )
+            if (updated.status !== 200) {
+                return toast("Error", {
+                description: "Oops! looks like your form is empty",
+                })
+            }
             }
             if (
                 !values.description &&
                 !values.name &&
-                !values.thumbnail &&
-                !values.icon &&
+                !values.thumbnail.length &&
+                !values.icon.length &&
                 !values.jsondescription
             ) {
-                return toast("Error",{ description: "Oops! looks like your form is empty"})
+            return toast("Error", {
+                description: "Oops! looks like your form is empty",
+            })
             }
-            return toast("Success",{ description: "Group settings updated successfully"})
+            return toast("Success", {
+            description: "Group data updated",
+            })
         },
-    })
-
-    const router = useRouter()
-    const onUpdate = handleSubmit(async (values) => update(values))
-    if (data?.status !== 200) return router.push(`/group/create`)
-
-    return {
-        data,
-        register,
-        errors,
-        onUpdate,
-        isPending,
-        previewIcon,
-        previewThumbnail,
-        onJsonDescription,
-        setJsonDescription,
-        setOnDescription,
-        onDescription,
+        })
+        const router = useRouter()
+        const onUpdate = handleSubmit(async (values) => update(values))
+        if (data?.status !== 200) router.push(`/group/create`)
+    
+        return {
+            data,
+            register,
+            errors,
+            onUpdate,
+            isPending,
+            previewIcon,
+            previewThumbnail,
+            onJsonDescription,
+            setJsonDescription,
+            setOnDescription,
+            onDescription,
+        }
     }
-
-}
