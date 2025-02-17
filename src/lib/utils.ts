@@ -16,4 +16,3 @@ export const truncateString = (string: string) => {
     return string.slice(0, 60) + "..."      //slice = extracts, the first 60 characters of the string. 
 }
 
-export const notFoundImage = "/public/default-product.jpeg"
