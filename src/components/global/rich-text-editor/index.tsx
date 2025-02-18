@@ -2,12 +2,13 @@
 
 import { cn } from '@/lib/utils'
 import { Placeholder } from "@tiptap/extension-placeholder"
-import { CharacterCount, EditorCommand, EditorCommandEmpty, EditorCommandItem, EditorContent, EditorRoot, handleCommandNavigation, JSONContent } from 'novel'
+import { CharacterCount, EditorBubble, EditorCommand, EditorCommandEmpty, EditorCommandItem, EditorContent, EditorRoot, handleCommandNavigation, JSONContent } from 'novel'
 import React, { useState } from 'react'
 import { FieldErrors } from 'react-hook-form'
 import { HtmlParser } from '../html-parser'
 import { defaultExtensions } from './extensions'
 import { Image } from './image'
+import NodeSelector from './node-selector'
 import { slashCommand, suggestionItems } from './slash-command'
 import { Video } from './video'
 
@@ -107,7 +108,7 @@ const BlockTextEditor = ({
                         <EditorCommand 
                             className='z-50 h-auto max-h-[330px]  w-72 overflow-y-auto rounded-md border border-muted bg-background px-1 py-2 shadow-md transition-all'
                         >
-                            <EditorCommandEmpty className='px-2 text-muted-foreground ' >
+                            <EditorCommandEmpty className='px-2 text-muted-foreground'>
                                 No results
                             </EditorCommandEmpty>
                             {suggestionItems.map((item: any) => (
@@ -126,6 +127,17 @@ const BlockTextEditor = ({
                                     </div>
                                 </EditorCommandItem>
                             ))}
+                            <EditorBubble
+                                tippyOptions={{
+                                    placement: "top",
+                                }}
+                                className='flex w-fit max-w-[90vw] overflow-hidden rounded border border-muted bg-themeBlack text-themeTextGray shadow-xl'
+                            >
+                                <NodeSelector open={openNode} onOpenChange={setOpenNode} />
+                                {/* <LinkSelector open={openLink} onOpenChange={setOpenLink} />
+                                <TextButtons />
+                                <ColorSelector open={openColor} onOpenChange={setOpenColor} /> */}
+                            </EditorBubble>
                         </EditorCommand>
                     </EditorContent>
                 </EditorRoot>
