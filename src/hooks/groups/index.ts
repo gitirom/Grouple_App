@@ -157,9 +157,13 @@ import { z } from "zod"
             if (!icon) return
             if (icon[0]) {
                 setPreviewIcon(URL.createObjectURL(icon[0]))
+                console.log(icon[0]);
+                
             }
             if (thumbnail[0]) {
             setPreviewThumbnail(URL.createObjectURL(thumbnail[0]))
+            console.log(thumbnail[0]);
+            
             }
         })
         return () => previews.unsubscribe()
@@ -177,6 +181,8 @@ import { z } from "zod"
             onSetDescriptions()
         }
         }, [onJsonDescription, onDescription])
+
+
     
         const { mutate: update, isPending } = useMutation({
         mutationKey: ["group-settings"],
