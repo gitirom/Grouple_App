@@ -8,6 +8,8 @@ type ReactQueryProviderProps = {
 
 const client = new QueryClient()
 
+// client.removeQueries()
+
 export const ReactQueryProvider = ({ children }: ReactQueryProviderProps) => {
     return <QueryClientProvider client={client}>{children}</QueryClientProvider>
 }

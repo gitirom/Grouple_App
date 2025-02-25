@@ -1,6 +1,6 @@
-"use client"
+    "use client"
 
-import { onGetGroupInfo, onSearchGroups, onUpdateGroupSettings } from "@/actions/groups"
+    import { onGetGroupInfo, onSearchGroups, onUpdateGroupSettings } from "@/actions/groups"
 import { GroupSettingsSchema } from "@/components/forms/group-settings/schema"
 import { upload } from "@/lib/uploadCare"
 import { supabaseClient } from "@/lib/utils"
@@ -17,103 +17,103 @@ import { useDispatch } from "react-redux"
 import { toast } from "sonner"
 import { z } from "zod"
 
-// this custom hook connects to a Supabase channel for real-time presence tracking, listens for updates on which users are online,
-// and dispatches actions to update the Redux store with the online status of users.
-// Supabase channels are used for real-time data updates.
+    // this custom hook connects to a Supabase channel for real-time presence tracking, listens for updates on which users are online,
+    // and dispatches actions to update the Redux store with the online status of users.
+    // Supabase channels are used for real-time data updates.
 
-export const useGroupChatOnline = (userid: string) => {
-    const dispatch: AppDispatch = useDispatch()
+    export const useGroupChatOnline = (userid: string) => {
+        const dispatch: AppDispatch = useDispatch()
 
-    useEffect(() => {
-        const channel = supabaseClient.channel("tracking")
+        useEffect(() => {
+            const channel = supabaseClient.channel("tracking")
 
-        channel
-            .on("presence", { event: "sync" }, () => {
-                const state: any = channel.presenceState() // Retrieves the current state of users subscribed to the channel and user Info.
-                for (const user in state) {
-                    dispatch(
-                        onOnline({
-                            members: [{ id: state[user][0].member.userid }], // Updates the online status with the user's ID.
-                        }),
-                    )
-                }
-            })
-            .subscribe(async (status) => {
-                if (status === "SUBSCRIBED") {
-                    await channel.track({
-                        member: {
-                            userid, // Sends the user ID of the current user to the channel.
-                        },
-                    })
-                }
-            })
+            channel
+                .on("presence", { event: "sync" }, () => {
+                    const state: any = channel.presenceState() // Retrieves the current state of users subscribed to the channel and user Info.
+                    for (const user in state) {
+                        dispatch(
+                            onOnline({
+                                members: [{ id: state[user][0].member.userid }], // Updates the online status with the user's ID.
+                            }),
+                        )
+                    }
+                })
+                .subscribe(async (status) => {
+                    if (status === "SUBSCRIBED") {
+                        await channel.track({
+                            member: {
+                                userid, // Sends the user ID of the current user to the channel.
+                            },
+                        })
+                    }
+                })
 
-        return () => {
-            // Cleanup function to unsubscribe from the channel when the component unmounts
-            channel.unsubscribe()
-        }
-    }, [])
-}
-
-export const useSearch = (search: "GROUPS" | "POSTS") => {
-    const [query, setQuery] = useState<string>("")
-    const [debounce, setDebounce] = useState<string>("")
-
-    const dispatch: AppDispatch = useDispatch()
-
-    // Event handler for updating the search query state when the input value changes
-    const onSearchQuery = (e: React.ChangeEvent<HTMLInputElement>) =>
-        setQuery(e.target.value)
-
-    // reducing the number of search queries sent by introducing a 1-second delay after the user stops typing.
-    useEffect(() => {
-        const delayInputTimeoutId = setTimeout(() => {
-            setDebounce(query)
-        }, 1000)
-        return () => clearTimeout(delayInputTimeoutId)
-    }, [query, 1000])
-
-    const { refetch, data, isFetched, isFetching } = useQuery({
-        queryKey: ["search-data", debounce],
-        queryFn: async ({ queryKey }) => {
-            if (search === "GROUPS") {
-                const groups = await onSearchGroups(search, queryKey[1]) // Fetching groups data based on the debounced query
-                return groups
+            return () => {
+                // Cleanup function to unsubscribe from the channel when the component unmounts
+                channel.unsubscribe()
             }
-        },
-        enabled: false,
-    })
+        }, [])
+    }
 
-     // Dispatching an action to indicate search is in progress when fetching
-    if (isFetching)
-        dispatch(
-            onSearch({
-                isSearching: true,
-                data: [],
-            }),
-        )
+    export const useSearch = (search: "GROUPS" | "POSTS") => {
+        const [query, setQuery] = useState<string>("")
+        const [debounce, setDebounce] = useState<string>("")
 
-    if (isFetched)
-        dispatch(
-            onSearch({
-                isSearching: false,
-                status: data?.status as number,
-                data: data?.groups || [],
-                debounce,
-            }),
-        )
+        const dispatch: AppDispatch = useDispatch()
 
-        //refetch data when debounce changes or clear search if debounce is empty
-    useEffect(() => {
-        if (debounce) refetch()
-        if (!debounce) dispatch(onClearSearch())
-        return () => {
-            debounce
-        }
-    }, [debounce])
+        // Event handler for updating the search query state when the input value changes
+        const onSearchQuery = (e: React.ChangeEvent<HTMLInputElement>) =>
+            setQuery(e.target.value)
 
-    return { query, onSearchQuery }
-}
+        // reducing the number of search queries sent by introducing a 1-second delay after the user stops typing.
+        useEffect(() => {
+            const delayInputTimeoutId = setTimeout(() => {
+                setDebounce(query)
+            }, 1000)
+            return () => clearTimeout(delayInputTimeoutId)
+        }, [query, 1000])
+
+        const { refetch, data, isFetched, isFetching } = useQuery({
+            queryKey: ["search-data", debounce],
+            queryFn: async ({ queryKey }) => {
+                if (search === "GROUPS") {
+                    const groups = await onSearchGroups(search, queryKey[1]) // Fetching groups data based on the debounced query
+                    return groups
+                }
+            },
+            enabled: false,
+        })
+
+        // Dispatching an action to indicate search is in progress when fetching
+        if (isFetching)
+            dispatch(
+                onSearch({
+                    isSearching: true,
+                    data: [],
+                }),
+            )
+
+        if (isFetched)
+            dispatch(
+                onSearch({
+                    isSearching: false,
+                    status: data?.status as number,
+                    data: data?.groups || [],
+                    debounce,
+                }),
+            )
+
+            //refetch data when debounce changes or clear search if debounce is empty
+        useEffect(() => {
+            if (debounce) refetch()
+            if (!debounce) dispatch(onClearSearch())
+            return () => {
+                debounce
+            }
+        }, [debounce])
+
+        return { query, onSearchQuery }
+    }
 
 
 
@@ -145,7 +145,7 @@ export const useSearch = (search: "GROUPS" | "POSTS") => {
         setValue,
         } = useForm<z.infer<typeof GroupSettingsSchema>>({
         resolver: zodResolver(GroupSettingsSchema),
-        mode: "onChange",
+            mode: "onChange",
         })
         const [previewIcon, setPreviewIcon] = useState<string | undefined>(undefined)
         const [previewThumbnail, setPreviewThumbnail] = useState<string | undefined>(
@@ -156,7 +156,7 @@ export const useSearch = (search: "GROUPS" | "POSTS") => {
         const previews = watch(({ thumbnail, icon }) => {
             if (!icon) return
             if (icon[0]) {
-            setPreviewIcon(URL.createObjectURL(icon[0]))
+                setPreviewIcon(URL.createObjectURL(icon[0]))
             }
             if (thumbnail[0]) {
             setPreviewThumbnail(URL.createObjectURL(thumbnail[0]))
@@ -182,8 +182,8 @@ export const useSearch = (search: "GROUPS" | "POSTS") => {
         mutationKey: ["group-settings"],
         mutationFn: async (values: z.infer<typeof GroupSettingsSchema>) => {
             if (values.thumbnail && values.thumbnail.length > 0) {
-                const uploaded = await upload.uploadFile(values.thumbnail[0])
-                const updated = await onUpdateGroupSettings(
+            const uploaded = await upload.uploadFile(values.thumbnail[0])
+            const updated = await onUpdateGroupSettings(
                 groupid,
                 "IMAGE",
                 uploaded.uuid,
@@ -196,9 +196,8 @@ export const useSearch = (search: "GROUPS" | "POSTS") => {
             }
             }
             if (values.icon && values.icon.length > 0) {
-                console.log("icon")
-                const uploaded = await upload.uploadFile(values.icon[0])
-                const updated = await onUpdateGroupSettings(
+            const uploaded = await upload.uploadFile(values.icon[0])
+            const updated = await onUpdateGroupSettings(
                 groupid,
                 "ICON",
                 uploaded.uuid,
@@ -252,11 +251,11 @@ export const useSearch = (search: "GROUPS" | "POSTS") => {
             }
             }
             if (
-                !values.description &&
-                !values.name &&
-                !values.thumbnail.length &&
-                !values.icon.length &&
-                !values.jsondescription
+            !values.description &&
+            !values.name &&
+            !values.thumbnail.length &&
+            !values.icon.length &&
+            !values.jsondescription
             ) {
             return toast("Error", {
                 description: "Oops! looks like your form is empty",
@@ -272,16 +271,16 @@ export const useSearch = (search: "GROUPS" | "POSTS") => {
         if (data?.status !== 200) router.push(`/group/create`)
     
         return {
-            data,
-            register,
-            errors,
-            onUpdate,
-            isPending,
-            previewIcon,
-            previewThumbnail,
-            onJsonDescription,
-            setJsonDescription,
-            setOnDescription,
-            onDescription,
+        data,
+        register,
+        errors,
+        onUpdate,
+        isPending,
+        previewIcon,
+        previewThumbnail,
+        onJsonDescription,
+        setJsonDescription,
+        setOnDescription,
+        onDescription,
         }
     }

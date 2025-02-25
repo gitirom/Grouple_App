@@ -1,7 +1,7 @@
 "use client"
-
 import { cn } from "@/lib/utils"
-import { Placeholder } from "@tiptap/extension-placeholder"
+import { ErrorMessage } from "@hookform/error-message"
+import Placeholder from "@tiptap/extension-placeholder"
 import {
     CharacterCount,
     EditorBubble,
@@ -13,7 +13,7 @@ import {
     handleCommandNavigation,
     JSONContent,
 } from "novel"
-import React, { useState } from "react"
+import { useState } from "react"
 import { FieldErrors } from "react-hook-form"
 import { HtmlParser } from "../html-parser"
 import { ColorSelector } from "./color-selector"
@@ -24,7 +24,6 @@ import NodeSelector from "./node-selector"
 import { slashCommand, suggestionItems } from "./slash-command"
 import { TextButtons } from "./text-selector"
 import { Video } from "./video"
-import { ErrorMessage } from "@hookform/error-message"
 
 type Props = {
     content: JSONContent | undefined
@@ -43,14 +42,14 @@ type Props = {
 }
 
 const BlockTextEditor = ({
-    content,
     setContent,
+    content,
     min,
     max,
     name,
     errors,
-    textContent,
     setTextContent,
+    textContent,
     onEdit,
     inline,
     disabled,
@@ -68,11 +67,9 @@ const BlockTextEditor = ({
         <div>
             {" "}
             {htmlContent && !onEdit && inline ? (
-                <HtmlParser html={htmlContent} /> //If htmlContent exists and onEdit is false, the editor is disabled, and the HTML content is rendered using the HtmlParser component.
+                <HtmlParser html={htmlContent} />
             ) : (
                 <EditorRoot>
-                    {" "}
-                    {/*create the text editor, with the EditorContent responsible for rendering the editable content.*/}
                     <EditorContent
                         className={cn(
                             inline
@@ -90,7 +87,6 @@ const BlockTextEditor = ({
                                 class: `prose prose-lg dark:prose-invert focus:outline-none max-w-full [&_h1]:text-4xl [&_h2]:text-3xl [&_h3]:text-2xl text-themeTextGray`,
                             },
                         }}
-                        //configure the editor with several extensions:
                         extensions={[
                             // @ts-ignore
                             ...defaultExtensions,
@@ -138,12 +134,10 @@ const BlockTextEditor = ({
                                     </div>
                                     <div>
                                         <p className="font-medium">
-                                            {" "}
                                             {item.title}
                                         </p>
-                                        <p className="text-xs text-muted-foreground ">
-                                            {" "}
-                                            {item.description}{" "}
+                                        <p className="text-xs text-muted-foreground">
+                                            {item.description}
                                         </p>
                                     </div>
                                 </EditorCommandItem>
@@ -170,7 +164,6 @@ const BlockTextEditor = ({
                             </EditorBubble>
                         </EditorCommand>
                     </EditorContent>
-                    {/* display the charracters lenght */}
                     {inline ? (
                         onEdit && (
                             <div className="flex justify-between py-2">
