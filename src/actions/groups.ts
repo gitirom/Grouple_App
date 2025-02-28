@@ -413,7 +413,9 @@ export const onUpdateGroupSettings = async (
 export const onGetExploreGroup = async (category: string, paginate: number) => {
     try {
 
-        
+        if (!category.trim()) { //removes all the whitespace from both sides of category
+            return { status: 400, message: 'Category is required' };
+        }
         
         const groups = await client.group.findMany({
             where:{
@@ -424,20 +426,15 @@ export const onGetExploreGroup = async (category: string, paginate: number) => {
                 },
             },
             take: 6,
-            skip: paginate,
+            skip: Math.max(0, paginate), //Ensure skip is not negative
         }) 
 
-        if (groups && groups.length > 0) {
-            return { status: 200, groups }
-        }
-
-        return { 
-            status: 404, 
-            message: 'No groups found for this category'
-        }
+        return groups.length > 0 ? 
+            { status: 200, groups } : 
+            { status: 404, message: "No groups found for this category" };
 
     } catch (error) {
-        console.error("Error Getting Explore Group :", error);
-        return { status: 500, message: 'Internal server error' };
+        console.error("Error fetching explore groups:", error);
+        return { status: 500, message: "Internal server error", error: (error as Error).message };
     }
 }
