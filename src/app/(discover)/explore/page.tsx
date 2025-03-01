@@ -1,6 +1,6 @@
 
 import { onGetExploreGroup } from "@/actions/groups"
-import { hydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query"
+import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query"
 import ExplorePageContent from "./_componnents/explore-content"
 
 type Props = {}
@@ -24,7 +24,7 @@ const ExplorePage = async (props: Props) => {
     })
 
     return (
-        <HydrationBoundary state={hydrate(query)} >   {/*handle server-side data hydration. It ensures that data fetched on the server is properly available and matches on the client, preventing React hydration errors. */}
+        <HydrationBoundary state={dehydrate(query)} >   {/*handle server-side data hydration. It ensures that data fetched on the server is properly available and matches on the client, preventing React hydration errors. */}
             <ExplorePageContent layout="SLIDER" />
         </HydrationBoundary>
     )

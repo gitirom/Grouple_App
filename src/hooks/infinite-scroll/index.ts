@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 
-export const useInfiniteScrollcroll = (
+export const useInfiniteScroll = (
     action: "GROUPS" | "CHANNEL" | "POSTS",
     identifier: string,
     paginate: number,
