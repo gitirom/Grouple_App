@@ -1,10 +1,10 @@
 "use server"
 import { CreateGroupSchema } from "@/components/forms/create-groupe/schema"
 import { client } from "@/lib/prisma"
+import { revalidatePath } from "next/cache"
 import { v4 as uuidv4 } from "uuid"
 import { z } from "zod"
 import { onAuthenticatedUser } from "./auth"
-import { revalidatePath } from "next/cache"
 
     export const onGetAffiliateInfo = async (id: string) => {
         try {
@@ -436,5 +436,67 @@ export const onGetExploreGroup = async (category: string, paginate: number) => {
     } catch (error) {
         console.error("Error fetching explore groups:", error);
         return { status: 500, message: "Internal server error", error: (error as Error).message };
+    }
+}
+
+export const onGetPaginatedPosts = async (identifier: string, paginate: number): Promise<{ status: number; posts?: any[]; message?: string; error?: string }> => {
+    try {
+        const user = await onAuthenticatedUser()
+
+        if (!user) {
+            return { status: 401, message: 'Unauthorized access' };
+        }
+
+        const posts = await client.post.findMany({
+            where: {
+                channelId: identifier,
+            },
+            skip: paginate,
+            take: 2,
+            orderBy: {
+                createdAt: "desc",
+            },
+            include:{
+                channel:{
+                    select:{
+                        name: true,
+                    },
+                },
+                author:{
+                    select:{
+                        firstname: true,
+                        lastname: true,
+                        image: true,
+                    },
+                },
+                _count:{
+                    select:{
+                        likes: true,
+                        comments: true,
+                    },
+                },
+                likes:{
+                    where:{
+                        userId: user.id!,
+                    },
+                    select:{
+                        userId: true,
+                        id: true,
+                    },
+                },
+            },
+        })
+
+        return posts.length
+            ? { status: 200, posts }
+            : { status: 404, message: "No posts found" };
+
+    } catch (error) {
+        console.error("Error fetching paginated posts:", error);
+        return {
+            status: 500,
+            message: "Internal server error",
+            error: (error as Error).message,
+        };
     }
 }
