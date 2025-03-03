@@ -2,6 +2,7 @@ import InfiniteScrollObserver from '@/components/global/infinite-scroll'
 import { Loader } from '@/components/global/loader'
 import { NoResult } from '@/components/global/search/no-results'
 import GroupCard from './group-card'
+import PaginatedGroups from './paginated-groups'
 
 type Props = {
     searching: boolean,
@@ -9,7 +10,7 @@ type Props = {
     query?: string
 }
 
-const SearchGroups = ({ searching, data, query }: Props) => {
+export const SearchGroups = ({ searching, data, query }: Props) => {
     return (
         <div className="container grid md:grid-cols-2 grid-cols-1 lg:grid-cols-3 gap-6 mt36">
             <Loader
@@ -35,5 +36,3 @@ const SearchGroups = ({ searching, data, query }: Props) => {
         </div>
     )
 }
-
-export default SearchGroups
