@@ -3,6 +3,7 @@
 import { useAppSelector } from "@/redux/store"
 import dynamic from "next/dynamic"
 import ExploreSlider from "./explore-slider"
+import GroupList from "./group-list"
 
 type Props = {
     layout: "SLIDER" | "LIST"
@@ -52,7 +53,9 @@ const ExplorePageContent = ({ layout, category }: Props) => {
                         />
                     </>
                 ) : (
-                    <></>
+                    <>
+                        <GroupList category={category as string} />
+                    </>
                 ))
             )}
         </div>
