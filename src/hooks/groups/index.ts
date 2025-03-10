@@ -3,7 +3,7 @@
 import { onGetExploreGroup, onGetGroupInfo, onSearchGroups, onUpdateGroupSettings } from "@/actions/groups"
 import { GroupSettingsSchema } from "@/components/forms/group-settings/schema"
 import { upload } from "@/lib/uploadCare"
-import { supabaseClient } from "@/lib/utils"
+import { supabaseClient, validateURLString } from "@/lib/utils"
 import { onClearList, onInfiniteScroll } from "@/redux/slices/infinte-scroll-slice"
 import { onOnline } from "@/redux/slices/online-member-slice"
 import { GroupStateProps, onClearSearch, onSearch } from "@/redux/slices/search-slice"
@@ -12,7 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { JSONContent } from "novel"
-import { useEffect, useLayoutEffect, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useDispatch } from "react-redux"
 import { toast } from "sonner"
@@ -321,7 +321,7 @@ export const useExploreSlider = (query: string, paginate: number) => {
         queryKey: ["fetch-group-slider"],
         queryFn: async () => onGetExploreGroup(query, paginate | 0),
         enabled: false,
-    }) 
+    })
 
     if (isFetching && data?.status === 200 && data.groups) {
         dispatch(onInfiniteScroll({ data: data.groups }))
@@ -329,11 +329,192 @@ export const useExploreSlider = (query: string, paginate: number) => {
 
     useEffect(() => {
         setOnLoadSlider(true)
-        return () =>{
+        return () => {
             onLoadSlider
         }
     }, []);
 
-    return {refetch, isFetching, data, onLoadSlider}
+    return { refetch, isFetching, data, onLoadSlider }
+
+}
+
+export const useGroupInfo = () => {
+    const { data } = useQuery({
+        queryKey: ["about-group-info"],  //access the getGroup info endpoint for fetching
+    })
+
+    const router = useRouter()
+
+    if (!data) router.push("/explore")
+
+    const { group, status } = data as { status: number; group: GroupStateProps }
+
+    if (status !== 200) router.push("/explore")
+
+    return { group }
+
+}
+
+export const useGroupAbout = (
+    description: string | null,
+    jsonDescription: string | null,
+    htmlDescription: string | null,
+    currentMedia: string,
+    groupid: string,
+) => {
+    const editor = useRef<HTMLFormElement | null>(null)
+    const mediaType = validateURLString(currentMedia)
+    const [activeMedia, setActiveMedia] = useState<
+        | {
+            url: string | undefined
+            type: string
+        }
+        | undefined
+    >(
+        mediaType.type === "IMAGE"
+            ? {
+                url: currentMedia,
+                type: mediaType.type,
+            }
+            : { ...mediaType },
+    )
+
+    const jsonContent = jsonDescription !== null ? JSON.parse(jsonDescription as string ) : undefined
+
+    const [onJsonDescription, setJsonDescription] = useState<
+        JSONContent | undefined
+    >(jsonContent)
+
+    const [onDescription, setOnDescription] = useState<string | undefined>(
+        description || undefined,
+    )
+
+    const [onHtmlDescription, setOnHtmlDescription] = useState<
+        string | undefined
+    >(htmlDescription || undefined)
+
+    const [onEditDescription, setOnEditDescription] = useState<boolean>(false)
+
+    //get data from the form
+    const { 
+        setValue,
+        formState: { errors },
+        handleSubmit,
+    } = useForm<z.infer<typeof GroupSettingsSchema>>({
+        resolver: zodResolver(GroupSettingsSchema),
+    })
+
+    //update the form with the data
+    const onSetDescriptions = () => {
+        const JsonContent = JSON.stringify(onJsonDescription)
+        setValue("jsondescription", JsonContent)
+        setValue("description", onDescription)
+        setValue("htmldescription", onHtmlDescription)
+    }
+
+    useEffect(() => {
+        onSetDescriptions()
+        return () => {
+            onSetDescriptions()
+        }
+    }, [onJsonDescription, onDescription]) //if onJsonDescription or onDescription changes, run the function
+
+    //sets up an event listener to detect clicks outside of a text editor component and updates the state accordingly to indicate whether the editor is being edited or not.
+    const onEditTextEditor = (event: Event) => {
+        if (editor.current) {
+            !editor.current.contains(event.target as Node | null) 
+                ? setOnEditDescription(false) 
+                : setOnEditDescription(true)
+        }
+    }
+
+    
+    useEffect(() => {
+        document.addEventListener("click", onEditTextEditor, false)
+        return () => {
+            document.removeEventListener("click", onEditTextEditor, false)
+        }
+    }, [])
+
+    //add optimisctic UI updates
+    const { mutate, isPending } = useMutation({
+        mutationKey: ["about-description"],
+        mutationFn: async (values: z.infer<typeof GroupSettingsSchema>) => {
+            if (values.description) {
+                const updated = await onUpdateGroupSettings(
+                    groupid,
+                    "DESCRIPTION",
+                    values.description,
+                    `/about/${groupid}`,
+                )
+                if (updated.status !== 200) {
+                    return toast("Error", {
+                        description: "Oops! looks like your form is empty",
+                    })
+                }
+                
+            }
+            if (values.jsondescription) {
+                const updated = await onUpdateGroupSettings(
+                    groupid,
+                    "JSONDESCRIPTION",
+                    values.jsondescription,
+                    `/about/${groupid}`,
+                )
+                if (updated.status !== 200) {
+                    return toast("Error", {
+                        description: "Oops! looks like your form is empty",
+                    })
+                }
+            }
+            if (values.htmldescription) {
+                const updated = await onUpdateGroupSettings(
+                    groupid,
+                    "HTMLDESCRIPTION",
+                    values.htmldescription,
+                    `/about/${groupid}`,
+                )
+                if (updated.status !== 200) {
+                    return toast("Error", {
+                        description: "Oops! looks like your form is empty",
+                    })
+                }
+            }
+            if (
+                !values.description &&
+                !values.jsondescription &&
+                !values.htmldescription
+            ) {
+                return toast("Error", {
+                    description: "Oops! looks like your form is empty",
+                })
+            }
+            return toast("Success", {
+                description: "Group settings updated successfully",
+            })
+        },
+    })
+
+    const onSetActiveMedia = (media: {url: string | undefined; type: string}) => {
+        onSetActiveMedia(media)
+    }
+
+    //handle form submission to invoke the mutaion function
+    const onUpdateDescription = handleSubmit(async (values) => mutate(values))
+
+    return {  // return the following values to be used in the component
+        setOnDescription,
+        onDescription,
+        setJsonDescription,
+        onJsonDescription,
+        errors,
+        onEditDescription,
+        editor,
+        activeMedia,
+        onSetActiveMedia,
+        setOnHtmlDescription,
+        onUpdateDescription,
+        isPending,
+    }
 
 }

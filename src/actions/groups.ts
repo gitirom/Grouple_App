@@ -500,3 +500,4 @@ export const onGetPaginatedPosts = async (identifier: string, paginate: number):
         };
     }
 }
+

@@ -47,7 +47,7 @@ export const GroupListSlider = ({overlay, label, register, selected, route, clas
                                     type="radio"
                                     className='hidden'
                                     value={item.path}
-                                    {...register("category")}
+                                    {...register("category")} //takes the value of the input field and registers it with the form
                                 />
                                 <GroupListItem
                                     {...item} 
