@@ -501,3 +501,43 @@ export const onGetPaginatedPosts = async (identifier: string, paginate: number):
     }
 }
 
+export const onUpdateGroupGallery = async (groupid: string, content: string): Promise<{ status: number; message: string; error?: string }> => {
+    try {
+        const mediaLimit =  await client.group.findUnique({
+            where: {
+                id: groupid,
+            },
+            select: {
+                gallery: true
+            }
+        })
+
+        if (mediaLimit && mediaLimit?.gallery.length < 6) {
+            await client.group.update({
+                where: {
+                    id: groupid,
+                },
+                data: {
+                    gallery: {
+                        push: content,
+                    },
+                },
+            })
+            revalidatePath(`/group/${groupid}`)   //invalidate and refresh the cached data for the specified path
+            return { status: 200, message: 'Media added to gallery' }
+        }
+
+        return {
+            status: 400,
+            message: 'Maximum media limit reached',
+        }
+
+    } catch (error) {
+        console.error("Error updating group gallery:", error);
+        return {
+            status: 500,
+            message: "Internal server error",
+            error: (error as Error).message,
+        };
+    }
+}

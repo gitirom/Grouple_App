@@ -2,6 +2,7 @@
 
 import { onGetExploreGroup, onGetGroupInfo, onSearchGroups, onUpdateGroupSettings } from "@/actions/groups"
 import { GroupSettingsSchema } from "@/components/forms/group-settings/schema"
+import { UpdateGallerySchema } from "@/components/forms/media-gallery/schema"
 import { upload } from "@/lib/uploadCare"
 import { supabaseClient, validateURLString } from "@/lib/utils"
 import { onClearList, onInfiniteScroll } from "@/redux/slices/infinte-scroll-slice"
@@ -516,5 +517,62 @@ export const useGroupAbout = (
         onUpdateDescription,
         isPending,
     }
+
+}
+
+export const useMediaGallery = (groupid: string) => {
+    const {
+        register,
+        formState: { errors },
+        handleSubmit,
+    } = useForm<z.infer<typeof UpdateGallerySchema>>({
+        resolver: zodResolver(UpdateGallerySchema),
+    })
+    const { mutate, isPending } = useMutation({
+        mutationKey: ["update-gallery"],
+        mutationFn: async (values: z.infer<typeof UpdateGallerySchema>) => {
+            //update the gallery with the new video
+            if (values.videourl) {
+                const update = await onUpdateGroupGallery(groupid, values.videourl)
+                if (update && update.status !== 200) {
+                    return toast("Error", {
+                        description: update?.message,
+                    })
+                    
+                }
+            }
+            //update the gallery with the new image
+            if (values.image && values.image.length) {
+                let count = 0
+                //upload multi images 
+                while (count < values.image.length) {
+                    const uploaded = await upload.uploadFile(values.image[count])
+                    if (uploaded) {
+                        const update = await onUpdateGroupGallery(groupid, uploaded.uuid)
+                        if (update && update?.status !== 200) {
+                            return toast("Error", {
+                                description: update?.message,
+                            })
+                            break 
+                        }
+                    }else {
+                        return toast("Error", {
+                            description: "Oops! looks like something went wrong!",
+                        })
+                        break
+                    }
+                    console.log("increment");
+                    count++
+                }
+            }
+            return toast("Success", {
+                description: "Group Gallery updated successfully",
+            })
+        },
+    })
+
+    const onUpdateGallery = handleSubmit(async (values) => mutate(values))
+
+    return { register, errors, onUpdateGallery, isPending }
 
 }
