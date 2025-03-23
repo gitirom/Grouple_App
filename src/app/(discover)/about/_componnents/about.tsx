@@ -35,6 +35,8 @@ const AboutGroup = ({ userid, groupid }: Props) => {
         group.gallery[0],
         groupid,
     )
+    
+    
 
     if (!group) {
         return (
@@ -50,9 +52,6 @@ const AboutGroup = ({ userid, groupid }: Props) => {
                 <h2 className="font-bold text-[56px] leading-none md:leading-normal ">
                     {group.name}
                 </h2>
-                <p className="text-themeTextGray leading-none md:mt-2 md:leading-normal mt-5 ">
-                    {group.description}
-                </p>
             </div>
             {group.gallery.length > 0 && (
                 <div className="relative rounded-xl ">
@@ -91,6 +90,7 @@ const AboutGroup = ({ userid, groupid }: Props) => {
                 onActive={onSetActiveMedia}
                 userid={userid}
                 groupUserid={group.userId}
+                groupid={groupid}
             />
             {userid !== group.userId ? (
                 <HtmlParser html={group.htmlDescription || "<></>"} />

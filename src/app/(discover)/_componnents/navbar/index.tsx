@@ -1,16 +1,18 @@
 import { onAuthenticatedUser } from "@/actions/auth"
 import { onGetUserGroups } from "@/actions/groups"
 
+import Menu from "@/app/(landing)/_componnents/navbar/menu"
 import GlassSheet from "@/components/global/glass-sheet"
+import UserWidget from "@/components/global/user-widget"
 import { Button } from "@/components/ui/button"
 import { CheckBadge, Logout } from "@/icons"
 import { MenuIcon } from "lucide-react"
 import Link from "next/link"
-import UserWidget from "@/components/global/user-widget"
 import { GroupDropDown } from "./group-dropdown"
 
 export const Navbar = async () => {
     const user = await onAuthenticatedUser()
+    
     const groups = await onGetUserGroups(user.id!)
 
     return (
@@ -19,7 +21,7 @@ export const Navbar = async () => {
                 {user.status === 200 ? (
                     <GroupDropDown members={groups.members} groups={groups} />
                 ) : (
-                    <p>Grouple.</p>
+                    <Link className="cursor-pointer" href={"/"} >Grouple.</Link>
                 )}
             </div>
             <GlassSheet
@@ -30,7 +32,7 @@ export const Navbar = async () => {
                     </span>
                 }
             >
-                <div>Content</div>
+                <Menu orientation="mobile" />
             </GlassSheet>
             <div className="flex-1 lg:flex hidden justify-end gap-3">
                 <Link href={user.status === 200 ? `/group/create` : "/sign-in"}>

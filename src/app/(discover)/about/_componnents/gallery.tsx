@@ -1,3 +1,4 @@
+import MediaGalleryForm from "@/components/forms/media-gallery"
 import { GlassModal } from "@/components/global/glass-model"
 import { Card, CardContent } from "@/components/ui/card"
 import { BadgePlus } from "@/icons"
@@ -5,12 +6,16 @@ import { validateURLString } from "@/lib/utils"
 
 type Props = {
     gallery: string[]
+    groupid: string
     onActive(media: { url: string | undefined; type: string }): void
     userid: string
     groupUserid: string
 }
 
-const MediaGallery = ({ gallery, onActive, userid, groupUserid }: Props) => {
+
+
+const MediaGallery = ({ gallery, onActive, userid, groupUserid, groupid }: Props) => {
+
     return (
         <div className="flex justify-start gap-3 flex-wrap ">
             {gallery.length > 0 &&
@@ -83,8 +88,8 @@ const MediaGallery = ({ gallery, onActive, userid, groupUserid }: Props) => {
                         </Card>
                     }
                 >
-                    di
-                    {/* <MediaGalleryForm groupid={groupid} /> */}
+                    
+                    <MediaGalleryForm groupid={groupid} />
                 </GlassModal>
             ) : (
                 <></>

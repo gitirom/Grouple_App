@@ -512,7 +512,7 @@ export const onUpdateGroupGallery = async (groupid: string, content: string): Pr
             }
         })
 
-        if (mediaLimit && mediaLimit?.gallery.length < 6) {
+        if (mediaLimit && mediaLimit?.gallery.length < 6) { //only 6 media items are showed in the about page
             await client.group.update({
                 where: {
                     id: groupid,

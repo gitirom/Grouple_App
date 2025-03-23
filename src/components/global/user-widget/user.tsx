@@ -3,13 +3,14 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Logout, Settings } from "@/icons"
+import { FourBoxIcon } from "@/icons/fourBoxIcon"
 import { supabaseClient } from "@/lib/utils"
+import { onOffline } from "@/redux/slices/online-member-slice"
 import { AppDispatch } from "@/redux/store"
 import { useClerk } from "@clerk/nextjs"
 import Link from "next/link"
 import { useDispatch } from "react-redux"
 import { DropDown } from "../drop-down"
-import { onOffline } from "@/redux/slices/online-member-slice"
 
 
 type Props = {
@@ -43,9 +44,15 @@ const UserAvatar = ({ image, groupid, userid }: Props) => {
                 </Avatar>
             }
         >
-            <Link href={`/group/${groupid}/settings`} className="flex gap-x-2 px-2 " >
-                <Settings />Settings
-            </Link>
+            <div className="flex flex-col gap-2">
+                
+                <Link href={'/explore'} className="flex gap-x-2 px-2 " >
+                    <FourBoxIcon />Explore
+                </Link>
+                <Link href={`/group/${groupid}/settings`} className="flex gap-x-2 px-2 " >
+                    <Settings />Settings
+                </Link>
+            </div>
             <Button 
                 onClick={onLogout}
                 variant="ghost"

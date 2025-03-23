@@ -1,6 +1,6 @@
 "use client"
 
-import { onGetExploreGroup, onGetGroupInfo, onSearchGroups, onUpdateGroupSettings } from "@/actions/groups"
+import { onGetExploreGroup, onGetGroupInfo, onSearchGroups, onUpdateGroupGallery, onUpdateGroupSettings } from "@/actions/groups"
 import { GroupSettingsSchema } from "@/components/forms/group-settings/schema"
 import { UpdateGallerySchema } from "@/components/forms/media-gallery/schema"
 import { upload } from "@/lib/uploadCare"
@@ -533,6 +533,7 @@ export const useMediaGallery = (groupid: string) => {
         mutationFn: async (values: z.infer<typeof UpdateGallerySchema>) => {
             //update the gallery with the new video
             if (values.videourl) {
+                console.log(values.videourl);
                 const update = await onUpdateGroupGallery(groupid, values.videourl)
                 if (update && update.status !== 200) {
                     return toast("Error", {
@@ -553,15 +554,14 @@ export const useMediaGallery = (groupid: string) => {
                             return toast("Error", {
                                 description: update?.message,
                             })
-                            break 
                         }
                     }else {
                         return toast("Error", {
                             description: "Oops! looks like something went wrong!",
                         })
-                        break
                     }
                     console.log("increment");
+                    console.log(values.image);
                     count++
                 }
             }
