@@ -9,7 +9,7 @@ import { useGroupAbout, useGroupInfo } from "@/hooks/groups"
 import MediaGallery from "./gallery"
 
 type Props = {
-    userid: string,
+    userid: string
     groupid: string
 }
 
@@ -35,8 +35,6 @@ const AboutGroup = ({ userid, groupid }: Props) => {
         group.gallery[0],
         groupid,
     )
-    
-    
 
     if (!group) {
         return (
@@ -45,52 +43,51 @@ const AboutGroup = ({ userid, groupid }: Props) => {
             </div>
         )
     }
-
+    
     return (
-        <div className="flex flex-col gap-y-10 ">
+        <div className="flex flex-col gap-y-10">
             <div>
-                <h2 className="font-bold text-[56px] leading-none md:leading-normal ">
+                <h2 className="font-bold text-[56px] leading-none md:leading-normal">
                     {group.name}
                 </h2>
             </div>
             {group.gallery.length > 0 && (
-                <div className="relative rounded-xl ">
-                    <div className="img--overlay absolute h-2/6 bottom-0 w-full z-50 ">
-                        {activeMedia?.type === "IMAGE" ? (
-                            <img
-                                src={`https://ucarecdn.com/${activeMedia.url}/`}
-                                alt="group-img"
-                                className="w-full aspect-video z-20 rounded-t-xl"
-                            />
-                        ) : activeMedia?.type === "LOOM" ? (
-                            <div className="w-full  ">
+                <div className="relative rounded-xl">
+                    <div className="img--overlay absolute h-2/6 bottom-0 w-full z-50" />
+                    {activeMedia?.type === "IMAGE" ? (
+                        <img
+                            src={`https://ucarecdn.com/${activeMedia.url}/`}
+                            alt="group-img"
+                            className="w-full aspect-video z-20 rounded-t-xl"
+                        />
+                    ) : activeMedia?.type === "LOOM" ? (
+                        <div className="w-full aspect-video">
+                            <iframe
+                                src={activeMedia.url}
+                                allowFullScreen
+                                className="absolute outline-none border-0 top-0 left-0 w-full h-full rounded-t-xl"
+                            ></iframe>
+                        </div>
+                    ) : (
+                        activeMedia?.type === "YOUTUBE" && (
+                            <div className="w-full aspect-video relative">
                                 <iframe
+                                    className="w-full absolute top-0 left-0 h-full rounded-xl"
                                     src={activeMedia.url}
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                     allowFullScreen
-                                    className="absolute outline-none border-0 top-0 left-0 w-full h-full rounded-t-xl"
                                 ></iframe>
                             </div>
-                        ) : (
-                            activeMedia?.type === "YOUTUBE" && (
-                                <div className="w-full aspect-video relative ">
-                                    <iframe
-                                        src={activeMedia.url}
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                        allowFullScreen
-                                        className="absolute outline-none border-0 top-0 left-0 w-full h-full rounded-t-xl"
-                                    ></iframe>
-                                </div>
-                            )
-                        )}
-                    </div>
+                        )
+                    )}
                 </div>
             )}
             <MediaGallery
+                groupid={groupid}
                 gallery={group.gallery}
                 onActive={onSetActiveMedia}
                 userid={userid}
                 groupUserid={group.userId}
-                groupid={groupid}
             />
             {userid !== group.userId ? (
                 <HtmlParser html={group.htmlDescription || "<></>"} />
@@ -98,7 +95,7 @@ const AboutGroup = ({ userid, groupid }: Props) => {
                 <form
                     ref={editor}
                     onSubmit={onUpdateDescription}
-                    className="mt-5 flex flex-col "
+                    className="mt-5 flex flex-col"
                 >
                     <BlockTextEditor
                         onEdit={onEditDescription}
@@ -110,11 +107,13 @@ const AboutGroup = ({ userid, groupid }: Props) => {
                         errors={errors}
                         setContent={setJsonDescription}
                         content={onJsonDescription}
-                        htmlContent={group.htmlDescription as string | undefined}
+                        htmlContent={
+                            group.htmlDescription as string | undefined
+                        }
                         setHtmlContent={setOnHtmlDescription}
                         textContent={onDescription}
                         setTextContent={setOnDescription}
-                    />   
+                    />
                     {onEditDescription && (
                         <Button
                             className="self-end bg-themeBlack border-themeGray px-10"

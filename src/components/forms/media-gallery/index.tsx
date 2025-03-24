@@ -18,9 +18,9 @@ const MediaGalleryForm = ({groupid}: Props) => {
             <FormGenerator
                 register={register}
                 errors={errors}
-                name="vidoeurl"
-                label="vidoe link"
-                placeholder="vidoe link..."
+                name="videourl"
+                label="video link"
+                placeholder="video link..."
                 inputType="input"
                 type="text"
             />

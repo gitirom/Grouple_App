@@ -531,6 +531,9 @@ export const useMediaGallery = (groupid: string) => {
     const { mutate, isPending } = useMutation({
         mutationKey: ["update-gallery"],
         mutationFn: async (values: z.infer<typeof UpdateGallerySchema>) => {
+
+            console.log("Form values: ", values);
+            
             //update the gallery with the new video
             if (values.videourl) {
                 console.log(values.videourl);
@@ -539,7 +542,6 @@ export const useMediaGallery = (groupid: string) => {
                     return toast("Error", {
                         description: update?.message,
                     })
-                    
                 }
             }
             //update the gallery with the new image
@@ -560,8 +562,6 @@ export const useMediaGallery = (groupid: string) => {
                             description: "Oops! looks like something went wrong!",
                         })
                     }
-                    console.log("increment");
-                    console.log(values.image);
                     count++
                 }
             }
