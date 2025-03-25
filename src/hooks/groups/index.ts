@@ -396,6 +396,19 @@ export const useGroupAbout = (
 
     const [onEditDescription, setOnEditDescription] = useState<boolean>(false)
 
+    useEffect(() => {
+        const newMediaType = validateURLString(currentMedia);
+        setActiveMedia(
+            newMediaType.type === "IMAGE"
+                ? {
+                    url: currentMedia,
+                    type: newMediaType.type,
+                }
+                : { ...newMediaType },
+        )
+    }, [groupid, currentMedia]);
+
+
     //get data from the form
     const { 
         setValue,
@@ -508,14 +521,14 @@ export const useGroupAbout = (
         onDescription,
         setJsonDescription,
         onJsonDescription,
-        errors,
+        errors: {},
         onEditDescription,
         editor,
         activeMedia,
-        onSetActiveMedia,
+        onSetActiveMedia: setActiveMedia,
         setOnHtmlDescription,
-        onUpdateDescription,
-        isPending,
+        onUpdateDescription: () => {},
+        isPending: false,
     }
 
 }
@@ -532,7 +545,6 @@ export const useMediaGallery = (groupid: string) => {
         mutationKey: ["update-gallery"],
         mutationFn: async (values: z.infer<typeof UpdateGallerySchema>) => {
 
-            console.log("Form values: ", values);
             
             //update the gallery with the new video
             if (values.videourl) {

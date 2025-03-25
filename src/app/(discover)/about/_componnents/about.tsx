@@ -15,6 +15,17 @@ type Props = {
 
 const AboutGroup = ({ userid, groupid }: Props) => {
     const { group } = useGroupInfo()
+
+    
+
+    if (!group) {
+        return (
+            <div>
+                <NoResult />
+            </div>
+        )
+    }
+
     const {
         setJsonDescription,
         setOnDescription,
@@ -36,13 +47,9 @@ const AboutGroup = ({ userid, groupid }: Props) => {
         groupid,
     )
 
-    if (!group) {
-        return (
-            <div>
-                <NoResult />
-            </div>
-        )
-    }
+    
+
+    
     
     return (
         <div className="flex flex-col gap-y-10">

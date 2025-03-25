@@ -3,7 +3,6 @@ import { Card } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { useGroupInfo } from '@/hooks/groups'
 import { cn, truncateString } from '@/lib/utils'
-import React from 'react'
 
 type Props = {
     light?: boolean
