@@ -396,6 +396,7 @@ export const useGroupAbout = (
 
     const [onEditDescription, setOnEditDescription] = useState<boolean>(false)
 
+    // Reset activeMedia when groupid changes
     useEffect(() => {
         const newMediaType = validateURLString(currentMedia);
         setActiveMedia(

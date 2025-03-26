@@ -1,4 +1,5 @@
 "use client"
+import JoinButton from '@/app/(discover)/about/_componnents/join-button'
 import { Card } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { useGroupInfo } from '@/hooks/groups'
@@ -31,12 +32,12 @@ const GroupSideWidget = ({light, groupid, userid}: Props) => {
                     </p>
                 </div>
                 <Separator orientation="horizontal" className="bg-themeGray" />
-                {/* {groupid && (
+                {groupid && (
                     <JoinButton
                         groupid={groupid}
                         owner={group.userId === userid ? true : false}
                     />
-                )} */}
+                )}
             </Card>
         )
 }

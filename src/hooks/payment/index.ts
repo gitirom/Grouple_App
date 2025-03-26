@@ -1,7 +1,7 @@
 "use client"
 
-import { onCreateNewGroup } from "@/actions/groups";
-import { onGetStripeClientSecret, onTransferCommission } from "@/actions/payments";
+import { onCreateNewGroup, onGetGroupChannels } from "@/actions/groups";
+import { onGetActiveSubscription, onGetStripeClientSecret, onTransferCommission } from "@/actions/payments";
 import { CreateGroupSchema } from "@/components/forms/create-groupe/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
@@ -124,4 +124,28 @@ export const usePayments = (
             creatingIntent,
         }
 
+}
+
+//fetching subscription details for a group.
+export const useActiveGroupSubscription = (groupId: string) => {
+    const { data } = useQuery({
+        queryKey: ["active-subscription"],
+        queryFn: () => onGetActiveSubscription(groupId),
+    })
+
+    return { data }
+}
+
+//allowing a user to join a group for free and redirecting them to the first channel.
+export const useJoinFree = (groupid: string) => {
+    const router = useRouter()
+    const onJoinFreeGroup = async () => {
+        const member = await onJoinGroup(groupid)
+        if (member?.status === 200) {
+            const channels = await onGetGroupChannels(groupid)
+            router.push(`/group/${groupid}/channel/${channels?.channels?.[0].id}`)
+        }
+    }
+
+    return { onJoinFreeGroup }
 }
