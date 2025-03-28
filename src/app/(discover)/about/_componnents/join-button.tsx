@@ -1,4 +1,5 @@
 import { GlassModal } from '@/components/global/glass-model'
+import JoinGroupPaymentForm from '@/components/global/join-group'
 import StripeElements from '@/components/global/stripe/elements'
 import { Button } from '@/components/ui/button'
 import { useActiveGroupSubscription, useJoinFree } from '@/hooks/payment'

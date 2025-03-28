@@ -151,16 +151,56 @@ export const useJoinFree = (groupid: string) => {
 }
 
 export const useJoinGroup = (groupid: string) => {
+    // Initializes Stripe and Elements hooks for payment processing
     const stripe = useStripe()
     const elements = useElements()
 
     const router = useRouter()
 
+    // Fetches the payment intent (client secret) for the group subscription
     const { data: Intent } = useQuery({
         queryKey: ["group-payment-intent"],
         queryFn: () => onGetGroupSubscriptionPaymentIntent(groupid),
     })
 
+    // Mutation to handle the payment and group joining process  (manage rendering logic, including optimistic UI updates)
+    const { mutate, isPending } = useMutation({
+        mutationFn: async () => {
+            if (!stripe || !elements || !Intent) {
+                return null
+            }
+            // Confirms the card payment using Stripe's API
+            const { error, paymentIntent } = await stripe.confirmCardPayment(
+                Intent.secret!, // Payment intent secret
+                {
+                    payment_method: {
+                        card: elements.getElement(CardElement) as StripeCardElement,
+                    },
+                },
+            )
 
+            // Handles payment errors
+            if (error) {
+                console.log(error)
+                return toast("Error", {
+                    description: "Oops! something went wrong, try again later",
+                })
+            }
+
+            // If payment is successful, proceeds to join the group
+            if (paymentIntent?.status === "succeeded") {
+                // Fetches the group's channels and redirects the user to the first channel
+                const member = await onJoinGroup(groupid)
+                if (member?.status == 200) {
+                    const channels = await onGetGroupChannels(groupid)
+                    router.push(`/group/${groupid}/channel/${channels?.channels?.[0].id}`)
+                }
+            }
+
+        }
+    })
+
+    const onPayToJoin = () => mutate()  //a simple function (callback) that triggers the mutation logic, making it easier to integrate the mutation into UI components or event handlers (mutate to execute the mutationFn!!).
+    return { onPayToJoin, isPending }
 
 }
