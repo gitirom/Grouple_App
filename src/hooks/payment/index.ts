@@ -1,7 +1,7 @@
 "use client"
 
-import { onCreateNewGroup, onGetGroupChannels } from "@/actions/groups";
-import { onGetActiveSubscription, onGetStripeClientSecret, onTransferCommission } from "@/actions/payments";
+import { onCreateNewGroup, onGetGroupChannels, onJoinGroup } from "@/actions/groups";
+import { onGetActiveSubscription, onGetGroupSubscriptionPaymentIntent, onGetStripeClientSecret, onTransferCommission } from "@/actions/payments";
 import { CreateGroupSchema } from "@/components/forms/create-groupe/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
@@ -148,4 +148,19 @@ export const useJoinFree = (groupid: string) => {
     }
 
     return { onJoinFreeGroup }
+}
+
+export const useJoinGroup = (groupid: string) => {
+    const stripe = useStripe()
+    const elements = useElements()
+
+    const router = useRouter()
+
+    const { data: Intent } = useQuery({
+        queryKey: ["group-payment-intent"],
+        queryFn: () => onGetGroupSubscriptionPaymentIntent(groupid),
+    })
+
+
+
 }

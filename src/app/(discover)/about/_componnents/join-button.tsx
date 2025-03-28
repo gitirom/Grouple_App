@@ -1,7 +1,7 @@
 import { GlassModal } from '@/components/global/glass-model'
+import StripeElements from '@/components/global/stripe/elements'
 import { Button } from '@/components/ui/button'
 import { useActiveGroupSubscription, useJoinFree } from '@/hooks/payment'
-import React from 'react'
 
 type JoinButtonProps = {
     owner: boolean
@@ -28,7 +28,7 @@ const JoinButton = ({owner, groupid}: JoinButtonProps) => {
                     <StripeElements>
                         <JoinGroupPaymentForm groupid={groupid} />
                     </StripeElements>
-                </GlassModal>>
+                </GlassModal>
             )
         }
         //If there is no active subscription allows the user to join the group for free.

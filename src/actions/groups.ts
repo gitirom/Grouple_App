@@ -541,3 +541,55 @@ export const onUpdateGroupGallery = async (groupid: string, content: string): Pr
         };
     }
 }
+
+
+export const onJoinGroup = async (groupid: string): Promise<{ status: number; message: string; error?: string }> => {
+    try {
+
+        if (!groupid) {
+            return { status: 400, message: 'Group ID is required' };
+        }
+
+        const user = await onAuthenticatedUser()
+        if (!user) {
+            return { status: 401, message: 'User not authenticated' };
+        }
+
+        //check if the user is already a member of the group
+        const existingMembership = await client.members.findFirst({
+            where: {
+                groupId: groupid,
+                userId: user.id,
+            },
+        })
+
+        if (existingMembership) {
+            return { status: 400, message: 'User is already a member of the group' };
+        }
+
+        //Add the user as a member of the group
+        const member = await client.group.update({
+            where: {
+                id: groupid,
+            },
+            data: {
+                member: {
+                    create: {
+                        userId: user.id,
+                    },
+                },
+            },
+        })
+        
+        return member
+            ? { status: 200, message: "Successfully joined the group" }
+            : { status: 400, message: "Failed to join the group" };
+    } catch (error) {
+        console.error("Error joining group:", error);
+        return {
+            status: 500,
+            message: "Internal server error",
+            error: (error as Error).message,
+        };
+    }
+}

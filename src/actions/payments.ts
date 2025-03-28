@@ -45,7 +45,7 @@ export const onTransferCommission = async (destination: string) => {
 export const onGetActiveSubscription = async (groupId: string) => {
 
     if (!groupId) {
-        return { 
+        return {
             status: 400,
             error: "Group id is required"
         }
@@ -65,9 +65,50 @@ export const onGetActiveSubscription = async (groupId: string) => {
 
     } catch (error) {
         console.error('Subscription retrieval error:', error);
-        return { 
+        return {
             status: 500,
             error: 'Failed to retrieve subscription',
         }
+    }
+}
+
+export const onGetGroupSubscriptionPaymentIntent = async (groupid: string) => {
+    try {
+        const price = await client.subscription.findFirst({
+            where: {
+                groupId: groupid,
+                active: true
+            },
+            select: {
+                price: true,
+                Group: {
+                    select: {
+                        User: {
+                            select: {
+                                stripeId: true,
+                            },
+                        },
+                    },
+                },
+            },
+        })
+
+        if (price && price.price) {
+            console.log("🟣", price.Group?.User.stripeId)
+            const paymentIntent = await stripe.paymentIntents.create({
+                currency: "usd",
+                amount: price.price *100,
+                automatic_payment_methods: {
+                    enabled: true,  //to automatically determine the best payment method.
+                },
+            })
+
+            if (paymentIntent) {
+                return { secret: paymentIntent.client_secret }  //used on the client side to complete the payment.
+            }
+        }
+
+    } catch (error) {   
+        return { status: 400, message: "Failed to load form" }
     }
 }
