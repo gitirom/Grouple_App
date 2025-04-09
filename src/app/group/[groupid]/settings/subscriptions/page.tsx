@@ -1,3 +1,4 @@
+import GroupSubscriptionForm from "@/components/forms/subscription"
 
 type Props = {
     params: { groupid: string }
