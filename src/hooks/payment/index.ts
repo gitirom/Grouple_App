@@ -1,12 +1,13 @@
 "use client"
 
 import { onCreateNewGroup, onGetGroupChannels, onJoinGroup } from "@/actions/groups";
-import { onGetActiveSubscription, onGetGroupSubscriptionPaymentIntent, onGetStripeClientSecret, onTransferCommission } from "@/actions/payments";
+import { onCreateNewGroupSubscription, onGetActiveSubscription, onGetGroupSubscriptionPaymentIntent, onGetStripeClientSecret, onTransferCommission } from "@/actions/payments";
 import { CreateGroupSchema } from "@/components/forms/create-groupe/schema";
+import { CreateGroupSubscriptionSchema } from "@/components/forms/subscription/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { loadStripe, StripeCardElement } from "@stripe/stripe-js";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -202,5 +203,51 @@ export const useJoinGroup = (groupid: string) => {
 
     const onPayToJoin = () => mutate()  //a simple function (callback) that triggers the mutation logic, making it easier to integrate the mutation into UI components or event handlers (mutate to execute the mutationFn!!).
     return { onPayToJoin, isPending }
+
+}
+
+export const useGroupSubscription = (groupid: string) => {
+    //form handling & validation
+    const {
+        register,
+        formState: { errors },
+        reset,
+        handleSubmit,
+    } = useForm<z.infer<typeof CreateGroupSubscriptionSchema>>({
+        resolver: zodResolver(CreateGroupSubscriptionSchema),
+    })
+
+    //interact with the React Query cache. This is useful for invalidating or updating cached data after a mutation.
+    const client = useQueryClient()
+
+    //handle the subscription creation process:
+    const { mutate, isPending, variables } = useMutation({
+        mutationFn: (data: { price: string }) => 
+            onCreateNewGroupSubscription(groupid, data.price),
+        onMutate: () => reset(),  // Resets the form when the mutation is triggered
+        onSuccess: (data) => 
+            toast(data?.status === 200 ? "Success" : "Error", {
+                description: data?.message,
+                }),
+        //Invalidates the group-subscription query to ensure the cache is updated with the latest data.
+        onSettled: async () => {
+            return await client.invalidateQueries({
+                queryKey: ["group-subscription"],
+            })
+        },
+    })
+
+    const onCreateNewSubscription = handleSubmit(async (values) =>
+        //executes the action with the new values provided
+        mutate({ ...values }),  // pass all the form values as individual properties to the mutate function using sprad operator = mutate({ price: "20", duration: "1 month" }) 
+    )
+
+    return {
+        onCreateNewSubscription,
+        register,
+        errors,
+        isPending,
+        variables,
+    }
 
 }

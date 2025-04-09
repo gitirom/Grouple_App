@@ -112,3 +112,25 @@ export const onGetGroupSubscriptionPaymentIntent = async (groupid: string) => {
         return { status: 400, message: "Failed to load form" }
     }
 }
+
+export const onCreateNewGroupSubscription = async (groupid: string, price: string) => {
+    try {
+        const subscription = await client.group.update({
+            where: {
+                id: groupid,
+            },
+            data: {
+                subscription: {
+                    create: {
+                        price: parseInt(price),
+                    },
+                },
+            },
+        })
+        if (subscription) {
+            return { status: 200, message: "Subscription created successfully" }
+        }
+    } catch (error) {
+        return { status: 400, message: "Failed to create subscription" }
+    }
+}
