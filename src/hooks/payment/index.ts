@@ -1,7 +1,7 @@
 "use client"
 
-import { onCreateNewGroup, onGetGroupChannels, onJoinGroup } from "@/actions/groups";
-import { onCreateNewGroupSubscription, onGetActiveSubscription, onGetGroupSubscriptionPaymentIntent, onGetStripeClientSecret, onTransferCommission } from "@/actions/payments";
+import { onCreateNewGroup, onGetGroupChannels, onGetGroupSubscriptions, onJoinGroup } from "@/actions/groups";
+import { onActivateSubscription, onCreateNewGroupSubscription, onGetActiveSubscription, onGetGroupSubscriptionPaymentIntent, onGetStripeClientSecret, onTransferCommission } from "@/actions/payments";
 import { CreateGroupSchema } from "@/components/forms/create-groupe/schema";
 import { CreateGroupSubscriptionSchema } from "@/components/forms/subscription/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -250,4 +250,30 @@ export const useGroupSubscription = (groupid: string) => {
         variables,
     }
 
+}
+
+
+export const useAllSubscriptions = (groupid: string) => {
+    const { data } = useQuery({
+        queryKey: ["group-subscriptions"],
+        queryFn: () => onGetGroupSubscriptions(groupid),
+    })
+
+    //Gets the query client instance to manage cache
+    const client = useQueryClient()
+
+    const { mutate } = useMutation({
+    mutationFn: (data: { id: string }) => onActivateSubscription(data.id),
+    onSuccess: (data) =>
+        toast(data?.status === 200 ? "Success" : "Error", {
+        description: data?.message,
+    }),
+    onSettled: async () => {  //nvalidates the "group-subscriptions" query when mutation settles (completes)
+        return await client.invalidateQueries({
+        queryKey: ["group-subscriptions"],
+    })
+    },
+})
+
+    return { data, mutate }
 }

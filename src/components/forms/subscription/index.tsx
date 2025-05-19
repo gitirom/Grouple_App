@@ -13,8 +13,7 @@ type GroupSubscriptionFormProps = {
 }
 
 const GroupSubscriptionForm = ({ groupid }: GroupSubscriptionFormProps) => {
-    const { onCreateNewSubscription, register, errors, isPending, variables } =
-        useGroupSubscription(groupid)
+    const { onCreateNewSubscription, register, errors, isPending, variables } = useGroupSubscription(groupid)
 
     return (
         <>

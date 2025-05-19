@@ -97,7 +97,7 @@ export const onGetGroupSubscriptionPaymentIntent = async (groupid: string) => {
             console.log("🟣", price.Group?.User.stripeId)
             const paymentIntent = await stripe.paymentIntents.create({
                 currency: "usd",
-                amount: price.price *100,
+                amount: price.price * 100,
                 automatic_payment_methods: {
                     enabled: true,  //to automatically determine the best payment method.
                 },
@@ -108,7 +108,7 @@ export const onGetGroupSubscriptionPaymentIntent = async (groupid: string) => {
             }
         }
 
-    } catch (error) {   
+    } catch (error) {
         return { status: 400, message: "Failed to load form" }
     }
 }
@@ -132,5 +132,85 @@ export const onCreateNewGroupSubscription = async (groupid: string, price: strin
         }
     } catch (error) {
         return { status: 400, message: "Failed to create subscription" }
+    }
+}
+
+export const onActivateSubscription = async (id: string) => {
+    try {
+        //Check Subscription Status
+        const status = await client.subscription.findUnique({
+            where: {
+                id,
+            },
+            select: {
+                active: true,
+            },
+        })
+        if (status) {
+            if (status.active) {
+                return { status: 200, message: "Plan already active" }
+            }
+            if (!status.active) {
+                //Finds the currently active subscription
+                const current = await client.subscription.findFirst({
+                    where: {
+                        active: true,
+                    },
+                    select: {
+                        id: true,
+                    },
+                })
+                //If another active subscription exists, Deactivates the currently active plan
+                if (current && current.id) {
+                    const deactivate = await client.subscription.update({
+                        where: {
+                            id: current.id,
+                        },
+                        data: {
+                            active: false,
+                        },
+                    })
+
+                    if (deactivate) {
+                        //activates the new subscription
+                        const activateNew = await client.subscription.update({
+                            where: {
+                                id,
+                            },
+                            data: {
+                                active: true,
+                            },
+                        })
+
+                        if (activateNew) {
+                            return {
+                                status: 200,
+                                message: "New plan activated",
+                            }
+                        }
+                    }
+                } else {
+                    //If no active subscription exists, Directly activates the new subscription.
+                    const activateNew = await client.subscription.update({
+                        where: {
+                            id,
+                        },
+                        data: {
+                            active: true,
+                        },
+                    })
+
+                    if (activateNew) {
+                        return {
+                            status: 200,
+                            message: "New plan activated",
+                        }
+                    }
+                }
+            }
+        }
+    } catch (error) {
+        console.log(error)
+        return { status: 400, message: "Oops something went wrong" }
     }
 }

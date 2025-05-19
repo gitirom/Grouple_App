@@ -6,6 +6,8 @@ import BlockTextEditor from "@/components/global/rich-text-editor"
 import { NoResult } from "@/components/global/search/no-results"
 import { Button } from "@/components/ui/button"
 import { useGroupAbout, useGroupInfo } from "@/hooks/groups"
+import { ArrowLeft } from "lucide-react"
+import Link from "next/link"
 import MediaGallery from "./gallery"
 
 type Props = {
@@ -53,6 +55,12 @@ const AboutGroup = ({ userid, groupid }: Props) => {
     
     return (
         <div className="flex flex-col gap-y-10">
+            <div className="self-start">
+                <Link href="/explore" className="flex items-center text-themeTextGray hover:text-white transition-colors">
+                    <ArrowLeft className="mr-2" size={20} />
+                    <span>Back to Explore</span>
+                </Link>
+            </div>
             <div>
                 <h2 className="font-bold text-[56px] leading-none md:leading-normal">
                     {group.name}
