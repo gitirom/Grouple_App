@@ -1,13 +1,15 @@
-import React from 'react'
-import SubscriptionCard from '../card'
-import { useAllSubscriptions } from '@/hooks/payment'
+"use client"
+
+import { useAllSubscriptions } from "@/hooks/payment"
+import SubscriptionCard from "../card"
 
 type SubscriptionsProps = {
     groupid: string
 }
 
-const Subscriptions = ({ groupid }: SubscriptionsProps) => {
+export const Subscriptions = ({ groupid }: SubscriptionsProps) => {
     const { data, mutate } = useAllSubscriptions(groupid)
+
     return data?.status === 200 && data.subscriptions ? (
         data.subscriptions.map((subscription) => (
             <SubscriptionCard
@@ -22,5 +24,3 @@ const Subscriptions = ({ groupid }: SubscriptionsProps) => {
         <></>
     )
 }
-
-export default Subscriptions

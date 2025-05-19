@@ -1,3 +1,5 @@
+"use client"
+
 import SubscriptionCard from "@/app/group/[groupid]/settings/subscriptions/_componnents/card"
 import { FormGenerator } from "@/components/global/form-generator"
 import { GlassModal } from "@/components/global/glass-model"
@@ -6,15 +8,16 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { useGroupSubscription } from "@/hooks/payment"
 import { Tag } from "lucide-react"
-import React from "react"
 
 type GroupSubscriptionFormProps = {
     groupid: string
 }
 
-const GroupSubscriptionForm = ({ groupid }: GroupSubscriptionFormProps) => {
-    const { onCreateNewSubscription, register, errors, isPending, variables } = useGroupSubscription(groupid)
-
+export const GroupSubscriptionForm = ({
+    groupid,
+}: GroupSubscriptionFormProps) => {
+    const { onCreateNewSubscription, register, errors, isPending, variables } =
+        useGroupSubscription(groupid)
     return (
         <>
             <GlassModal
@@ -56,5 +59,3 @@ const GroupSubscriptionForm = ({ groupid }: GroupSubscriptionFormProps) => {
         </>
     )
 }
-
-export default GroupSubscriptionForm

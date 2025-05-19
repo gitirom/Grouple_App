@@ -273,11 +273,10 @@ import { onAuthenticatedUser } from "./auth"
                 },
             })
 
-            if (members && members.length > 0) {
-                return {
-                    status: 200,
-                    members
-                }
+            return {
+                status: members && members.length > 0 ? 200 : 404,
+                members: members || [],
+                message: members && members.length > 0 ? undefined : 'No members found'
             }
 
         } catch (error) {

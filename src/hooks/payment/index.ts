@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 export const useStripeElements = () => {
     // Initializes Stripe.js using the publishable key from environment variables
-    const StripePromise = async () => 
+    const StripePromise = async () =>
         await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISH_KEY as string)
     return { StripePromise }
 }
@@ -65,28 +65,28 @@ export const usePayments = (
     })
 
     //// `useMutation` used to handle asynchronous mutations.
-        const { mutateAsync: createGroup, isPending } = useMutation({
-            mutationFn: async (data: z.infer<typeof CreateGroupSchema>) => {
+    const { mutateAsync: createGroup, isPending } = useMutation({
+        mutationFn: async (data: z.infer<typeof CreateGroupSchema>) => {
             if (!stripe || !elements || !Intent) {
                 return null
             }
-        
+
             // Attempt to confirm card payment with Stripe using the payment intent secret and card element.
             const { error, paymentIntent } = await stripe.confirmCardPayment(
                 Intent.secret!,
                 {
-                payment_method: {
-                    card: elements.getElement(CardElement) as StripeCardElement,
-                },
+                    payment_method: {
+                        card: elements.getElement(CardElement) as StripeCardElement,
+                    },
                 },
             )
-        
+
             if (error) {
                 return toast("Error", {
-                description: "Oops! something went wrong, try again later",
+                    description: "Oops! something went wrong, try again later",
                 })
             }
-        
+
             //// Check if the payment was successful.
             if (paymentIntent?.status === "succeeded") {
                 console.log(paymentIntent.status);
@@ -98,32 +98,32 @@ export const usePayments = (
                 const created = await onCreateNewGroup(userId, data)
                 if (created && created.status === 200) {
                     toast("Success", {
-                    description: created.message,
-                })
-                router.push(
-                    `/group/${created.data?.group[0].id}/channel/${created.data?.group[0].channel[0].id}`,
-                )
+                        description: created.message,
+                    })
+                    router.push(
+                        `/group/${created.data?.group[0].id}/channel/${created.data?.group[0].channel[0].id}`,
+                    )
                 }
                 if (created && created.status !== 200) {
                     reset()
                     return toast("Error", {
-                    description: created.message,
-                })
+                        description: created.message,
+                    })
                 }
             }
-            },
-        })
+        },
+    })
 
-        const onCreateGroup = handleSubmit(async (values) => createGroup(values))
+    const onCreateGroup = handleSubmit(async (values) => createGroup(values))
 
-        return {
-            onCreateGroup,
-            isPending,
-            register,
-            errors,
-            isCategory,
-            creatingIntent,
-        }
+    return {
+        onCreateGroup,
+        isPending,
+        register,
+        errors,
+        isCategory,
+        creatingIntent,
+    }
 
 }
 
@@ -215,27 +215,27 @@ export const useGroupSubscription = (groupid: string) => {
         handleSubmit,
     } = useForm<z.infer<typeof CreateGroupSubscriptionSchema>>({
         resolver: zodResolver(CreateGroupSubscriptionSchema),
-    })
+    });
 
     //interact with the React Query cache. This is useful for invalidating or updating cached data after a mutation.
     const client = useQueryClient()
 
     //handle the subscription creation process:
     const { mutate, isPending, variables } = useMutation({
-        mutationFn: (data: { price: string }) => 
+        mutationFn: (data: { price: string }) =>
             onCreateNewGroupSubscription(groupid, data.price),
         onMutate: () => reset(),  // Resets the form when the mutation is triggered
-        onSuccess: (data) => 
+        onSuccess: (data) =>
             toast(data?.status === 200 ? "Success" : "Error", {
                 description: data?.message,
-                }),
+            }),
         //Invalidates the group-subscription query to ensure the cache is updated with the latest data.
         onSettled: async () => {
             return await client.invalidateQueries({
                 queryKey: ["group-subscription"],
             })
         },
-    })
+    });
 
     const onCreateNewSubscription = handleSubmit(async (values) =>
         //executes the action with the new values provided
@@ -259,21 +259,20 @@ export const useAllSubscriptions = (groupid: string) => {
         queryFn: () => onGetGroupSubscriptions(groupid),
     })
 
-    //Gets the query client instance to manage cache
     const client = useQueryClient()
 
     const { mutate } = useMutation({
-    mutationFn: (data: { id: string }) => onActivateSubscription(data.id),
-    onSuccess: (data) =>
-        toast(data?.status === 200 ? "Success" : "Error", {
-        description: data?.message,
-    }),
-    onSettled: async () => {  //nvalidates the "group-subscriptions" query when mutation settles (completes)
-        return await client.invalidateQueries({
-        queryKey: ["group-subscriptions"],
+        mutationFn: (data: { id: string }) => onActivateSubscription(data.id),
+        onSuccess: (data) =>
+            toast(data?.status === 200 ? "Success" : "Error", {
+                description: data?.message,
+            }),
+        onSettled: async () => {  ////nvalidates the "group-subscriptions" query when mutation settles (completes)
+            return await client.invalidateQueries({
+                queryKey: ["group-subscriptions"],
+            })
+        },
     })
-    },
-})
 
     return { data, mutate }
 }

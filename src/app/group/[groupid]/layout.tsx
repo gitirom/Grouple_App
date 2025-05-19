@@ -46,8 +46,9 @@ const GroupLayout = async ({children, params}: Props) => {
     //fetch member_chats
     await query.prefetchQuery({
         queryKey: ["member-chats"],
-        queryFn: async () => onGetAllGroupMembers(params.groupid),
+        queryFn: () => onGetAllGroupMembers(params.groupid),
     })
+    
 
     return (
         <HydrationBoundary state={dehydrate(query)} >     {/*HydrationBoundary helps bridge the gap between server-rendered HTML and client-side React, ensuring a smooth transition and optimal data handling. */}
