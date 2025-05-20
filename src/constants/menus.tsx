@@ -56,7 +56,7 @@ export const GROUP_PAGE_MENU: MenuProps[] = [
         id: 0,
         label: "Group",
         icon: <Home />,
-        path: "/",
+        path: `/`,
         section: true,
     },
     {

@@ -7,7 +7,7 @@ import { cn, truncateString } from '@/lib/utils'
 
 type Props = {
     light?: boolean
-    groupid: string
+    groupid?: string
     userid?: string
 }
 

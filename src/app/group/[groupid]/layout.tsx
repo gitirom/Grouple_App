@@ -4,6 +4,7 @@ import SideBar from "@/components/global/sidebar"
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query"
 import { redirect } from "next/navigation"
 import { Navbar } from "../_components/navbar"
+import MobileNav from "../_components/mobile-nav"
 
 type Props = {
     children: React.ReactNode
@@ -57,7 +58,7 @@ const GroupLayout = async ({children, params}: Props) => {
                 <div className="md:ml-[300px] flex flex-col flex-1 bg-[#101011] md:rounded-tl-xl overflow-y-auto border-l-[1px] border-t-[1px] border-[#28282D]">
                     <Navbar  groupid={params.groupid} userid={user.id}  />
                     {children}
-                    {/* <MobileNav groupid={params.groupid} /> */}
+                    <MobileNav groupid={params.groupid} />
                 </div>
             </div>
         </HydrationBoundary>
