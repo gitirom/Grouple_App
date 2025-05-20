@@ -1,10 +1,26 @@
-import { onDeleteChannel, onGetChannelInfo, onUpdateChannelInfo } from "@/actions/channels";
-import { useMutation, useMutationState, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
+import {
+    onCreateChannelPost,
+    onDeleteChannel,
+    onGetChannelInfo,
+    onUpdateChannelInfo,
+} from "@/actions/channels"
+import { CreateChannelPost } from "@/components/global/post-content/schema"
+import { zodResolver } from "@hookform/resolvers/zod"
+import {
+    useMutation,
+    useMutationState,
+    useQuery,
+    useQueryClient,
+} from "@tanstack/react-query"
+import { JSONContent } from "novel"
+import { useEffect, useRef, useState } from "react"
+import { useForm } from "react-hook-form"
+import { toast } from "sonner"
+import { v4 } from "uuid"
+import { z } from "zod"
 
-
-export const useChannelInfo = () => {  //utilizing optimistic updates for a smooth user experience.
+export const useChannelInfo = () => {
+    //utilizing optimistic updates for a smooth user experience.
     const channelRef = useRef<HTMLAnchorElement | null>(null)
     const inputRef = useRef<HTMLInputElement | null>(null)
     const triggerRef = useRef<HTMLButtonElement | null>(null)
@@ -21,24 +37,26 @@ export const useChannelInfo = () => {  //utilizing optimistic updates for a smoo
     const onSetIcon = (icon: string | undefined) => setIcon(icon)
 
     //Optimistic UI with useMutation
-    const {isPending, mutate, variables} = useMutation({
-        mutationFn: (data: {name?: string; icon?: string}) => 
+    const { isPending, mutate, variables } = useMutation({
+        mutationFn: (data: { name?: string; icon?: string }) =>
             onUpdateChannelInfo(channel!, data.name, data.icon),
-        onMutate: () => {  //called before the mutation function is fired.
+        onMutate: () => {
+            //called before the mutation function is fired.
             setEdit(false)
             onSetIcon(undefined)
         },
-        onSuccess: (data) => { //called if the mutation is successful.
+        onSuccess: (data) => {
+            //called if the mutation is successful.
             return toast(data.status !== 200 ? "Error" : "Success", {
                 description: data.message,
             })
         },
-        onSettled: async () => { // It invalidates the "group-channels" query to refetch the data and ensure the UI is up to date.
+        onSettled: async () => {
+            // It invalidates the "group-channels" query to refetch the data and ensure the UI is up to date.
             return await client.invalidateQueries({
                 queryKey: ["group-channels"],
             })
         },
-
     })
 
     const { variables: deleteVariables, mutate: deleteMutation } = useMutation({
@@ -55,7 +73,8 @@ export const useChannelInfo = () => {  //utilizing optimistic updates for a smoo
         },
     })
 
-    const onEndChannelEdit = (event: Event) => {  //triggered on a click event to end the edit mode if the click is outside specific elements.
+    const onEndChannelEdit = (event: Event) => {
+        //triggered on a click event to end the edit mode if the click is outside specific elements.
         if (inputRef.current && channelRef.current && triggerRef.current) {
             if (
                 !inputRef.current.contains(event.target as Node | null) &&
@@ -82,10 +101,10 @@ export const useChannelInfo = () => {  //utilizing optimistic updates for a smoo
         return () => {
             document.removeEventListener("click", onEndChannelEdit, false)
         }
-    }, [icon]);
+    }, [icon])
 
     //trigger the delete mutation
-    const onChannelDetele = (id : string) => deleteMutation({ id })
+    const onChannelDetele = (id: string) => deleteMutation({ id })
 
     return {
         channel,
@@ -101,9 +120,7 @@ export const useChannelInfo = () => {  //utilizing optimistic updates for a smoo
         onChannelDetele,
         deleteVariables,
     }
-
 }
-
 
 export const useChannelPage = (channelid: string) => {
     const { data } = useQuery({
@@ -111,7 +128,8 @@ export const useChannelPage = (channelid: string) => {
         queryFn: () => onGetChannelInfo(channelid),
     })
 
-    const mutation = useMutationState({ //track the state of post creations, useful because The post creation might happen in a modal or different component
+    const mutation = useMutationState({
+        //track the state of post creations, useful because The post creation might happen in a modal or different component
         filters: { mutationKey: ["create-post"], status: "pending" },
         select: (mutation) => {
             return {
@@ -122,4 +140,99 @@ export const useChannelPage = (channelid: string) => {
     })
 
     return { data, mutation }
+}
+
+export const useCreateChannelPost = (channelid: string) => {
+    const [onJsonDescription, setJsonDescription] = useState<
+        JSONContent | undefined
+    >(undefined)
+
+    const [onDescription, setOnDescription] = useState<string | undefined>(
+        undefined,
+    )
+
+    const [onHtmlDescription, setOnHtmlDescription] = useState<
+        string | undefined
+    >(undefined)
+
+    const {
+        formState: { errors },
+        register,
+        handleSubmit,
+        setValue,
+    } = useForm<z.infer<typeof CreateChannelPost>>({
+        resolver: zodResolver(CreateChannelPost),
+    })
+
+    const onSetDescriptions = () => {
+        const JsonContent = JSON.stringify(onJsonDescription)
+        setValue("jsoncontent", JsonContent)
+        setValue("content", onDescription)
+        setValue("htmlcontent", onHtmlDescription)
+    }
+
+    useEffect(() => {
+        onSetDescriptions()
+        return () => {
+            onSetDescriptions()
+        }
+    }, [onJsonDescription, onDescription])
+
+    const client = useQueryClient()
+
+    const { mutate, variables, isPending } = useMutation({
+        mutationKey: ["create-post"],
+        mutationFn: (data: {
+            title: string
+            content: string
+            htmlcontent: string
+            jsoncontent: string
+            postid: string
+        }) =>
+            onCreateChannelPost(
+                channelid,
+                data.title,
+                data.content,
+                data.htmlcontent,
+                data.jsoncontent,
+                data.postid,
+            ),
+        onSuccess: (data) => {
+            setJsonDescription(undefined)
+            setOnHtmlDescription(undefined)
+            setOnDescription(undefined)
+            toast(data.status === 200 ? "Success" : "Error", {
+                description: data.message,
+            })
+        },
+        onSettled: async () => {
+            return await client.invalidateQueries({
+                queryKey: ["channel-info"],
+            })
+        },
+    })
+
+    const onCreatePost = handleSubmit(async (values) => 
+        mutate({
+            title: values.title,
+            content: values.content!,
+            htmlcontent: values.htmlcontent!,
+            jsoncontent: values.jsoncontent!,
+            postid: v4(),
+        }),
+    )
+
+    return {
+        onJsonDescription,
+        onDescription,
+        onHtmlDescription,
+        setOnDescription,
+        setOnHtmlDescription,
+        setJsonDescription,
+        register,
+        errors,
+        variables,
+        isPending,
+        onCreatePost,
+    }
 }

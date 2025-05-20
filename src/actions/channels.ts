@@ -246,3 +246,41 @@ export const onDeleteChannel = async (channelid: string) => {
         return { status: 500, message: 'Internal server error' };
     }
 }
+
+export const onCreateChannelPost = async (
+    channelid: string,
+    title: string,
+    content: string,
+    htmlContent: string,
+    jsonContent: string,
+    postid: string,
+) => {
+    try {
+        const user = await onAuthenticatedUser()
+        
+        if (!user) {
+            return { status: 401, message: 'User not authenticated' }
+        }
+        
+        const post = await client.post.create({
+            data: {
+                id: postid,
+                authorId: user.id!,
+                channelId: channelid,
+                title,
+                content,
+                htmlContent,
+                jsonContent,
+            },
+        })
+        
+        if (post) {
+            return { status: 200, message: "Post successfully created", post }
+        }
+        
+        return { status: 404, message: "Failed to create post" }
+    } catch (error) {
+        console.error("Error creating channel post:", error);
+        return { status: 500, message: 'Internal server error' };
+    }
+}
