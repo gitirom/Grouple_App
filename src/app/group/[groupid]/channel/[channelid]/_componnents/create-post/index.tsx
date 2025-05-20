@@ -1,5 +1,6 @@
 "use client"
 
+import { PostContent } from "@/components/global/post-content"
 import { SimpleModal } from "@/components/global/simple-modal"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardDescription } from "@/components/ui/card"
@@ -9,10 +10,7 @@ type Props = { userImage: string; channelid: string; username: string }
 
 const CreateNewPost = ({ channelid, userImage, username }: Props) => {
     const { data, mutation } = useChannelPage(channelid)
-    // const { name } = data as { name: string }
-
-    const name = data?.name || "channel"
-
+    const name = data ? (data as { name: string }).name : "Channel"
 
     return (
         <>
@@ -50,23 +48,9 @@ const CreateNewPost = ({ channelid, userImage, username }: Props) => {
                         </p>
                     </div>
                 </div>
-                {/* <PostContent channelid={channelid} /> */}
+                <PostContent channelid={channelid} />
             </SimpleModal>
-            {/* {mutation.length > 0 &&
-                mutation[0].status === "pending" &&
-                mutation[0].state && (
-                    <PostCard
-                        channelname={name}
-                        userimage={userImage}
-                        username={username}
-                        html={mutation[0].state.htmlcontent}
-                        title={mutation[0].state.title}
-                        likes={0}
-                        comments={0}
-                        postid={mutation[0].state.postid}
-                        optimisitc
-                    />
-                )} */}
+            
         </>
     )
 }
